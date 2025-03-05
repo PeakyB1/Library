@@ -57,4 +57,4 @@ python manage.py runserver
 - HTML, CSS
 
 ## Автор
-StaniSlave
+꧁༺ 𝓢𝓽𝓪𝓷𝓲𝓼𝓵𝓪𝓿𝓮 ༻꧂
