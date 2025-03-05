@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль{% endblock title %}
+
+{% block content %}
+<div class="logout-container">
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="form-button">Выйти</button>
+    </form>
+</div>
+<div class="account-container">
+    <h1>Взятые книги</h1>
+    {% if issued_books %}
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Название книги</th>
+                    <th>Автор</th>
+                    <th>Дата взятия</th>
+                    <th>Дата возврата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issued_books %}
+                <tr>
+                    <td>{{ issue.book.title }}</td>
+                    <td>{{ issue.book.author.first_name }} {{ issue.book.author.last_name }}</td>
+                    <td>{{ issue.issue_date }}</td>
+                    <td>{% if issue.return_date %}{{ issue.return_date }}{% else %}Не возвращена{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Вы еще не взяли ни одной книги.</p>
+    {% endif %}
+</div>
+
+{% endblock content %}

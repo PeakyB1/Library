@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BIBALARY</title>
+    <link rel="icon" type="image/png" href="{% static 'images/book.png' %}">
+    <link href="{% static 'css/reset.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700display=swap" rel="stylesheet">
+</head>
+<body class="page-background {% block background_class %}{% endblock background_class %}">
+    <header>
+        <a href="/" class="logo">BIBALARY</a>
+        <nav>
+            <ul>
+                <li><a href="{% url 'search' %}">Поиск книг</a></li>
+                <li><a href="{% url 'account' %}">Профиль</a></li>
+                <li><a href="{% url 'about' %}">О нас</a></li>
+                <li><a href="{% url 'contact' %}">Контакты</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        {% block content %}
+        <!-- Контент из дочернего шаблона -->
+        {% endblock content %}
+    </main>
+
+    <footer>
+        <p>&copy; 2024 BIBALARY. Все права защищены.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,628 @@
+/* === Общие стили === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+:root {
+    --main-orange: #ff945b;
+    --main-gray: #555;
+    --main-beige: #F5F5DC;
+    --hover-orange: #ff5900;
+    --no_hover-orange: #D46A38;
+    --header-bg: rgba(0, 0, 0, 0.6);
+    --shadow: 0 0.4vw 1vw rgba(0, 0, 0, 0.1);
+}
+
+@font-face {
+    font-family: 'WellwaitFree Regular';
+    src: url('../fonts/wellwaitfree_regular.eot');
+    src: url('../fonts/wellwaitfree_regular.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/wellwaitfree_regular.woff2') format('woff2'),
+         url('../fonts/wellwaitfree_regular.woff') format('woff'),
+         url('../fonts/wellwaitfree_regular.ttf') format('truetype'),
+         url('../fonts/wellwaitfree_regular.svg#wellwaitfree_regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    font-family: 'Inter';
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* === Фон страниц === */
+.page-background {
+    background-color: var(--main-orange);
+    background-repeat: no-repeat;
+}
+
+.background-home {
+    background-image: url("/static/images/back1.png"), url("/static/images/back2.png"), url("/static/images/back3.png");
+    background-position: left bottom, center bottom, right bottom;
+    background-size: calc(37vw * (736 / 1013)) 37vw, calc(30vw * (735 / 894)) 30vw, calc(22vw * (900 / 600)) 22vw;
+}
+
+.background-about, .background-contact {
+    background-image: url("/static/images/back4.png");
+    background-position: bottom right;
+    background-size: calc(25vw * (5333 / 1572)) 25vw;
+    background-attachment: fixed;
+}
+
+/* === Шапка === */
+header {
+    position: sticky;
+    top: 0;
+    background-color: var(--header-bg);
+    color: #fff;
+    padding: 0.78vw 1.04vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    font-weight: bold;
+}
+
+header .logo {
+    font-size: 1.8em;
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+header .logo:hover {
+    color: #ffd1b2;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0.78vw;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1em;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #ffd1b2;
+}
+
+/* === Основной контент === */
+main {
+    padding: 1.04vw;
+}
+
+/* === Стили поиска === */
+.home-search {
+    text-align: center;
+    margin-top: 1vw;
+}
+
+.home-search h1 {
+    font-size: 7em;
+    color: var(--main-beige);
+    font-family: 'WellwaitFree Regular';
+}
+
+.home-search-form {
+    margin: 1.3vw auto 0;
+    display: flex;
+    background-color: #dcdcdc;
+    border-radius: 0.52vw;
+    box-shadow: var(--shadow);
+    padding: 0.5vw;
+    width: 40vw;
+}
+
+.home-search-input {
+    flex: 1;
+    padding: 0.8vw;
+    font-size: 1em;
+    border: none;
+    background-color: #dcdcdc;
+    transition: all 0.3s ease;
+}
+
+.home-search-input::placeholder {
+    color: #666;
+    font-style: italic;
+}
+
+.home-search-input:focus {
+    outline: none;
+    border-color: var(--main-orange);
+}
+
+.home-search-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3vw;
+    height: 3.2vw;
+    background-color: #dcdcdc;
+    border: none;
+    border-radius: 0.52vw;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.search-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.search-form {
+    margin-top: 0.52vw;
+    display: flex;
+    justify-content: center;
+    gap: 0.52vw;
+}
+
+.search-input, .search-button {
+    padding: 0.52vw;
+    font-size: 1em;
+    border-radius: 0.26vw;
+    outline: none;
+    transition: all 0.3s ease;
+    background-color: var(--main-beige);
+}
+
+.search-input {
+    width: 40%;
+    border: 0.1vw solid #ccc;
+}
+
+.search-input:focus {
+    border-color: var(--main-orange);
+}
+
+.search-button {
+    background-color: var(--no_hover-orange);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background-color: var(--hover-orange);
+}
+
+.filter-input, .filter-select {
+    width: 20%;
+    padding: 0.52vw;
+    font-size: 1.2em;
+    border-radius: 0.42vw;
+    background-color: var(--main-beige);
+    box-shadow: var(--shadow);
+    transition: border-color 0.3s ease;
+}
+
+.filter-button {
+    padding: 0.52vw 1.04vw;
+    font-size: 1em;
+    font-weight: bold;
+    background-color: var(--no_hover-orange);
+    color: #fff;
+    border: none;
+    border-radius: 0.26vw;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: var(--shadow);
+}
+
+.filter-button:hover {
+    background-color: var(--hover-orange);
+    transform: scale(1.05);
+}
+
+/* === Пагинация === */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.52vw;
+    padding: 0.20vw;
+}
+
+.page-link {
+    padding: 0.52vw 0.78vw;
+    font-size: 1em;
+    color: #fff;
+    background: var(--no_hover-orange);
+    border-radius: 0.26vw;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.page-link:hover {
+    background: var(--hover-orange);
+    transform: translateY(-0.16vw);
+}
+
+.page-link.active {
+    background: var(--hover-orange);
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* === Карточки книг === */
+.book-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17vw, 1fr));
+    gap: 0.78vw;
+    padding: 1.95vw;
+}
+
+
+.book-item {
+    width: 15.63vw;
+    height: 30vw;
+    border-radius: 0.42vw;
+    background-color: var(--main-beige);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: var(--main-gray);
+}
+
+.book-item:hover {
+    transform: translateY(-0.26vw);
+    box-shadow: var(--shadow);
+}
+
+.cover-image {
+    width: 100%;
+    height: 24vw;
+    object-fit: fill;
+}
+
+.book-info {
+    padding: 0.52vw;
+    text-align: center;
+}
+
+.book-info h3 {
+    font-size: 1.14vw;
+    margin-bottom: 0.52vw;
+}
+
+.book-info p {
+    font-size: 0.88vw;
+    color: var(--main-gray);
+}
+/* === Cтили для страницы с деталями книги === */
+.custom-book-details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    background-color: var(--main-beige);
+    border-radius: 1vw;
+    padding: 1.52vw;
+    box-shadow: var(--shadow);
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+.custom-cover-image {
+    max-width: 20vw;
+    max-height: 30vw;
+    border-radius: 1vw;
+    margin-right: 1.5vw;
+    box-shadow: var(--shadow);
+    object-fit: cover;
+}
+
+.no-cover-message {
+    font-size: 1.4em;
+    color: #999;
+    text-align: center;
+    margin: auto;
+    font-style: italic;
+}
+
+.custom-book-info {
+    max-width: 45vw;
+    flex: 1;
+    line-height: 1.5;
+}
+
+.custom-book-title {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: var(--main-orange);
+    margin-bottom: 0.8em;
+}
+
+.custom-book-info p {
+    margin: 0.8em 0;
+    font-size: 1.4em;
+    color: var(--main-gray);
+    text-align: justify;
+}
+
+.custom-book-info p strong {
+    font-size: 1.1em;
+}
+
+.custom-take-button {
+    display: inline-block;
+    margin-top: 1vw;
+    padding: 0.8vw 1.6vw;
+    background-color: var(--no_hover-orange);
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 0.8vw;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: var(--shadow);
+}
+
+.custom-take-button:hover {
+    background-color: var(--hover-orange);
+    transform: scale(1.05);
+}
+
+.custom-take-button:active {
+    transform: scale(1);
+    box-shadow: var(--shadow);
+}
+/* === Футер === */
+footer {
+    background-color: var(--header-bg);
+    color: #fff;
+    text-align: center;
+    padding: 0.78vw 0;
+    width: 100%;
+    font-weight: bolder;
+    margin-top: auto;
+}
+
+/* === Стили для страниц "О нас" и "Контакты" === */
+.about-container h1, .contact-container h1 {
+    font-size: 3em;
+    margin-bottom: 0.5em;
+    color: #444;
+}
+
+.about-container p, .contact-container p {
+    font-size: 1.1em;
+    margin-bottom: 1em;
+    line-height: 1.6;
+    color: #333;
+}
+
+.about-container h2, .contact-container h2 {
+    font-size: 1.5em;
+    margin: 1.5em 0 0.5em;
+    color: #555;
+}
+
+.about-container ul, .contact-container ul {
+    margin: 1em 0;
+    padding-left: 1.5em;
+}
+
+.about-container ul {
+    list-style-type: disc;
+}
+
+.contact-container ul {
+    list-style-type: none;
+}
+
+.contact-container ul li a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.contact-container ul li a:hover {
+    text-decoration: underline;
+}
+.about-container, .contact-container {
+    background-color: rgba(245, 245, 220, 0.8); /* Мягкий бежевый фон с прозрачностью */
+    padding: 1.5em; /* Внутренние отступы для воздуха */
+    border-radius: 0.5em; /* Скругленные углы */
+    box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.1); /* Легкая тень для отделения */
+}
+
+/* === Стили для страницы входа === */
+.login-container {
+    width: 400px; /* фиксированная ширина */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--main-beige);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    font-weight: bolder;
+    color: #444;
+}
+
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    border-color: var(--main-orange);
+    outline: none;
+}
+
+.form-button {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--no_hover-orange);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-button:hover {
+    background-color: var(--hover-orange);
+}
+
+.login-container p {
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* === Стили для таблицы и сообщения о необходимости входа === */
+.styled-table {
+    width: 100%;
+    border-collapse: separate;
+    margin: 1.3vw 0; /* 25px -> 1.3vw */
+    font-size: 1em;
+    font-family: 'Inter', Arial, sans-serif;
+    min-width: 20.83vw; /* 400px -> 20.83vw */
+    box-shadow: var(--shadow);
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    
+}
+
+.styled-table thead tr {
+    background-color: var(--main-orange);
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 0.63vw 0.78vw; /* 12px 15px -> 0.63vw 0.78vw */
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid var(--main-orange);
+}
+
+
+
+
+/* === Стили для страницы регистрации === */
+.register-container {
+    width: 400px; /* фиксированная ширина */
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--main-beige);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    font-weight: bolder;
+    color: #444;
+}
+.register-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.register-link {
+    color: var(--main-orange);
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    margin-top: 20px;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+.errorlist {
+    color: red;
+    margin: 10px;
+}
+
+/* === Стили для страницы профиля === */
+.account-container {
+    background-color: var(--main-beige);
+    padding: 2vw;
+    border-radius: 1vw;
+    box-shadow: var(--shadow);
+    margin: 2vw auto;
+    max-width: 60vw;
+}
+
+.account-container h1{
+    text-align: center;
+    color: var(--main-gray);
+    font-size: larger;
+}
+
+
+.logout-container {
+    text-align: center;
+    margin-top: 2vw;
+}
+
+.logout-container .form-button {
+    background-color: var(--no_hover-orange);
+    color: #fff;
+    border: none;
+    padding: 1vw 2vw;
+    width: 200px;
+    border-radius: 0.5vw;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-container .form-button:hover {
+    background-color: var(--hover-orange);
+}
+
+/* === Стили для сообщений об ошибках и успехах === */
+.messages {
+    margin: 1vw 0;
+}
+
+.message {
+    padding: 1vw;
+    border-radius: 0.5vw;
+    margin-bottom: 1vw;
+    font-size: 1em;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    margin: 0 auto;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    margin: 0 auto;
+}
