@@ -10,7 +10,7 @@ class BookFilterForm(forms.Form):
         })
     )
     genre = forms.ChoiceField(
-        choices=[],  # Загрузим динамически в __init__
+        choices=[], 
         required=False,
         widget=forms.Select(attrs={
             'class': 'filter-select',

@@ -67,6 +67,6 @@ class IssueOfBooks(models.Model):
         verbose_name_plural = "Выдачи книг"
 
     def __str__(self):
-        return f"Issue {self.id} - {self.book.title} to {self.reader.first_name}"  # Отображение информации о выдаче
+        return f"Выдача {self.id} - {self.book.title}. Читатель: {self.reader.first_name}"  # Отображение информации о выдаче
     
     
