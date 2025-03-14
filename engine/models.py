@@ -41,6 +41,7 @@ class Book(models.Model):
     year = models.IntegerField(verbose_name="Год издания")  # Год издания книги
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, verbose_name="Жанр")  # Связь с жанром книги
     amount = models.IntegerField(verbose_name="Количество экземпляров")  # Количество экземпляров
+    fb2file = models.FileField(upload_to=None, max_length=100, null=True, verbose_name="Файл книги")
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name="Издатель")  # Связь с издателем
     summary = models.TextField(
         max_length=1000,
