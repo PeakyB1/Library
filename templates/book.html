@@ -3,21 +3,21 @@
 {% block title %}Детали книги{% endblock title %}
 
 {% block content %}
-<div class="custom-book-details">
+<div class="detail-book-details">
     {% if book.cover_url %}
-        <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="custom-cover-image">
+        <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="detail-cover-image">
     {% else %}
         <p class="no-cover-message">Обложка недоступна</p>
     {% endif %}
-    <div class="custom-book-info">
-        <h2 class="custom-book-title">{{ book.title }}</h2>
+    <div class="detail-book-info">
+        <h2 class="detail-book-title">{{ book.title }}</h2>
         <p><strong>Автор:</strong> {{ book.author.first_name }} {{ book.author.last_name }}</p>
         <p><strong>Год издания:</strong> {{ book.year }}</p>
         <p><strong>Жанр:</strong> {{ book.genre.name }}</p>
         <p><strong>Издатель:</strong> {{ book.publisher.name }}</p>
         <p><strong>Количество:</strong> {{ book.amount }}</p>
         <p><strong>Описание:</strong> {{ book.summary }}</p>
-        <a href="{% url 'take_book' book.id %}" class="custom-take-button">Взять</a>
+        <a href="{% url 'take_book' book.id %}" class="detail-take-button">Взять</a>
     </div>
 </div>
 {% if messages %}

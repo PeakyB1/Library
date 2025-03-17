@@ -8,5 +8,4 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('contact/', views.contact, name='contact'),
     path('takebook/<int:id>/', views.takeBook, name='take_book'),
-    path('api/v1/book/<int:id>/', views.EngineAPIView.as_view(), name='api_test'),
 ]

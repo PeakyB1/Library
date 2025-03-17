@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 import os
 import json
 import fb2reader
-
+from bs4 import BeautifulSoup
 class FB2Parser:
     def __init__(self, filename, page_size=1000, external_annotations=True):
         self.root = ET.parse(filename).getroot()
@@ -68,23 +68,17 @@ class FB2Parser:
             json.dump(page_data, f, ensure_ascii=False, indent=4)  # indent=4 для удобного чтения
         print(f"Данные страницы {page_number} сохранены в файл: {output_file}")
 
-class FixedFB2Book(fb2reader.fb2book):  
-    def get_authors(self):
-        authors = []  # Создаём пустой список, если авторов нет
-        for author in getattr(self, "authors", []):  # Берём авторов из атрибута книги
-            first_name = getattr(author, "first_name", "") or ""
-            middle_name = getattr(author, "middle_name", "") or ""
-            last_name = getattr(author, "last_name", "") or ""
-            full_name = " ".join(filter(None, [first_name, middle_name, last_name]))
-            authors.append(full_name)
-        return authors if authors else ["Неизвестный автор"]  # Если авторов нет, пишем заглушку
+class FB2Paginator:
+    def __init__(self, book, page_size=500):
+        self.text = book.get_body() 
+        self.pages = self.split_into_pages(self.text, page_size)
+ 
 if __name__ == "__main__":
     # parser = FB2Parser("gmn.fb2", page_size=4000)  # Установим, что одна страница = 1000 символов
     
     # # Сохранить страницу 1 в файл
     # parser.save_page_to_file(7, "page_7.json")
+    file_path = 'media\Гарри Поттер и философский камень.fb2'
 
-    file_path = 'media\Хоббит.fb2'
-    book = FixedFB2Book(file_path)
-
-    book.save_body_as_html(output_dir='output', output_file_name='body')
+    book = fb2reader.fb2book(file_path)
+    print(book.get_translators())
