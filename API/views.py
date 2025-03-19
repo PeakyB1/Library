@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from engine.models import Book
+from API.models import NetBook
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import fb2reader
@@ -18,7 +19,7 @@ class fb2_parser(fb2reader.fb2book):
 # Create your views here.
 class EngineAPIView(APIView):
     def get(self, request, id):
-        file = Book.objects.get(id=id).fb2file
+        file = NetBook.objects.get(id=id).fb2file
         book = fb2_parser(file.path)
         title = book.get_title()
         identifier = book.get_identifier()
