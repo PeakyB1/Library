@@ -42,6 +42,7 @@ class Book(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, verbose_name="Жанр")  # Связь с жанром книги
     amount = models.IntegerField(verbose_name="Количество экземпляров")  # Количество экземпляров
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name="Издатель")  # Связь с издателем
+    fb2file = models.FileField(upload_to='books/', max_length=100, null=True, verbose_name="Файл книги")
     summary = models.TextField(
         max_length=1000,
         help_text="Введите краткое описание книги",
