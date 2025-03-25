@@ -18,6 +18,7 @@
                     <th>Название книги</th>
                     <th>Автор</th>
                     <th>Дата взятия</th>
+                    <th>Тип</th>
                     <th>Дата возврата</th>
                 </tr>
             </thead>
@@ -27,7 +28,18 @@
                     <td>{{ issue.book.title }}</td>
                     <td>{{ issue.book.author.first_name }} {{ issue.book.author.last_name }}</td>
                     <td>{{ issue.issue_date }}</td>
-                    <td>{% if issue.return_date %}{{ issue.return_date }}{% else %}Не возвращена{% endif %}</td>
+                    <td>{% if issue.is_web %}{{"Веб версия"}}{% else %}Физическая версия{% endif %}</td>
+                    <td>
+                        {% if issue.return_date %}{{ issue.return_date }}
+                        {% elif issue.is_web %}
+                        <form method="post" action="{% url 'return_book' issue.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="form-button">Вернуть</button>
+                        </form>
+                        {% else %}
+                        Не возвращена
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

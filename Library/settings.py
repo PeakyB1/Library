@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'engine',
     'API',
     'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [

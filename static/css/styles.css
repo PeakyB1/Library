@@ -68,6 +68,7 @@ header .logo {
     text-decoration: none;
     color: #fff;
     transition: color 0.3s ease;
+    
 }
 
 header .logo:hover {
@@ -79,7 +80,7 @@ nav ul {
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 0.78vw;
+    gap: 20px;
 }
 
 nav ul li a {
@@ -95,19 +96,21 @@ nav ul li a:hover {
 
 /* === Основной контент === */
 main {
-    padding: 1.04vw;
+    padding: 20px;
 }
 
 /* === Стили поиска === */
 .home-search {
     text-align: center;
-    margin-top: 1vw;
+    margin-top: 20px;
 }
 
+
 .home-search h1 {
-    font-size: 7em;
+    font-size: 8em;
     color: var(--main-beige);
     font-family: 'WellwaitFree Regular';
+    
 }
 
 .home-search-form {
@@ -351,11 +354,14 @@ main {
 .detail-book-info p strong {
     font-size: 1.1em;
 }
+.detail-buttons {
+    display: flex;
+    gap: 20px; /* Пространство между кнопками */
+}
 
 .detail-take-button {
     display: inline-block;
-    margin-top: 1vw;
-    padding: 0.8vw 1.6vw;
+    padding: 10px;
     background-color: var(--no_hover-orange);
     color: #fff;
     font-size: 1.2em;
@@ -564,11 +570,11 @@ footer {
 /* === Стили для страницы профиля === */
 .account-container {
     background-color: var(--main-beige);
-    padding: 2vw;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: var(--shadow);
-    margin: 2vw auto;
-    max-width: 60vw;
+    margin: 20px auto;
+    max-width: 1200px;
 }
 
 .account-container h1{
@@ -587,7 +593,7 @@ footer {
     background-color: var(--no_hover-orange);
     color: #fff;
     border: none;
-    padding: 1vw 2vw;
+    padding: 15px;
     width: 200px;
     border-radius: 10px;
     cursor: pointer;

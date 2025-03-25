@@ -41,6 +41,7 @@ class Book(models.Model):
     year = models.IntegerField(verbose_name="Год издания")  # Год издания книги
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, verbose_name="Жанр")  # Связь с жанром книги
     amount = models.IntegerField(verbose_name="Количество экземпляров")  # Количество экземпляров
+    web_amount = models.IntegerField(default=0, verbose_name="Количество экземпляров в интернет-библиотеке")
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name="Издатель")  # Связь с издателем
     fb2file = models.FileField(upload_to='books/', max_length=100, null=True, verbose_name="Файл книги")
     summary = models.TextField(
@@ -62,7 +63,7 @@ class IssueOfBooks(models.Model):
     reader = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts',null=True, default=None)
     issue_date = models.DateField(verbose_name="Дата выдачи")  # Дата выдачи книги
     return_date = models.DateField(null=True, blank=True, verbose_name="Дата возврата")  # Дата возврата книги
-
+    is_web = models.BooleanField(verbose_name="Веб-версия", default=False)  # Флаг для веб-версии книги
     class Meta:
         verbose_name = "Выдача книги"
         verbose_name_plural = "Выдачи книг"

@@ -28,7 +28,21 @@ def book(request, id):
     context = {'book': book}
     return render(request, "book.html", context)
 @login_required
+def returnBook(request, id):
+    issue = IssueOfBooks.objects.get(id=id)
+    book = issue.book
+    if not issue.is_web:
+        messages.error(request, "Только книги, взятые через веб, можно возвращать.")
+        return redirect('account')
+    issue.return_date = datetime.date.today()
+    issue.save()
+    book.web_amount += 1
+    book.save()
+    messages.success(request, "Книга успешно возвращена.")
+    return redirect('account')
+@login_required
 def takeBook(request, id):
+    is_web = request.GET.get('is_web')
     book = Book.objects.get(id=id)
     user = request.user
     unreturned_books_count = IssueOfBooks.objects.filter(reader=user, return_date__isnull=True).count()
@@ -40,15 +54,21 @@ def takeBook(request, id):
         messages.error(request, "Вы не можете взять больше 5 книг.")
         return redirect('book_detail', id=id)
     
-    if book.amount <= 0:
+    if book.amount <= 0 or book.web_amount <= 0:
         messages.error(request, "Нет доступных экземпляров книги.")
         return redirect('book_detail', id=id)
-    
-    IssueOfBooks.objects.create(book=book, reader=user, issue_date=datetime.date.today())
-    book.amount -= 1
-    book.save()
-    messages.success(request, "Книга успешно взята.")
-    return redirect('account')
+    if is_web:
+        IssueOfBooks.objects.create(book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web)
+        book.web_amount -= 1
+        book.save()
+        messages.success(request, "Книга успешно взята.")
+        return redirect('account')
+    if not is_web:
+        IssueOfBooks.objects.create(book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web)
+        book.amount -= 1
+        book.save()
+        messages.success(request, "Книга успешно взята.")
+        return redirect('account')
 def contact(request):
     return render(request, "contact.html")
 class SearchBooksView(ListView):
