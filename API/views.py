@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
 from engine.models import Book
+from engine.models import Genre
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import fb2reader
@@ -17,6 +18,10 @@ class fb2_parser(fb2reader.fb2book):
                 translators.append(translatorsFL)
         return translators
 # Create your views here.
+class GenreListAPIView(APIView):
+    def get(self, request):
+        genres = Genre.objects.values('id', 'name')
+        return Response(genres)
 class BookListAPIView(APIView):
     def get(self, request):
         query = request.GET.get('query')
