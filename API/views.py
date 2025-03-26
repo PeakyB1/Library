@@ -73,12 +73,14 @@ class BookDetailAPIView(APIView):
         
         response_data = {
             'Название': book_instance.title if book_instance.title else None,
+            'Год': book_instance.year if book_instance.year else None,
             'Идентификатор': book.get_identifier() if book else None,
             'Авторы': f"{book_instance.author.first_name} {book_instance.author.last_name}" if book_instance.author else None,
             'Переводчики': book.get_translators() if book else None,
             'Серия': book.get_series() if book else None,
             'Язык': book.get_lang() if book else None,
             'Описание': book_instance.summary if book_instance.summary else None,
+            'Жанр': book_instance.genre.name if book_instance.genre else None,
             'ISBN': book.get_isbn() if book else None,
             'Обложка': book_instance.cover_url.replace('\\', '/') if book_instance.cover_url else None,
             'file': "Есть электронная версия" if book_instance.fb2file else "Файл не загружен",
