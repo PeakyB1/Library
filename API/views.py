@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -92,3 +93,15 @@ class BookDetailAPIView(APIView):
         }
         
         return Response(response_data)
+class TextAPIView(APIView):
+    def get(self, request, id):
+        try:
+            book_instance = Book.objects.get(id=id)
+        except Book.DoesNotExist:
+            return Response({"error": "Книга не найдена"}, status=404)
+        
+        book = fb2_parser(book_instance.fb2file.path) if book_instance.fb2file else None
+        
+        body = book.get_body() if book else None,
+        
+        return HttpResponse(body)
