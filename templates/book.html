@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="detail-book-details">
-    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="cover-image">
+    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="detail-cover-image">
     <div class="detail-book-info">
         <h2 class="detail-book-title">{{ book.title }}</h2>
         <p><strong>Автор:</strong> {{ book.author.first_name }} {{ book.author.last_name }}</p>
