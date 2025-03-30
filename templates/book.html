@@ -4,11 +4,7 @@
 
 {% block content %}
 <div class="detail-book-details">
-    {% if book.cover_url %}
-        <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="detail-cover-image">
-    {% else %}
-        <p class="no-cover-message">Обложка недоступна</p>
-    {% endif %}
+    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="cover-image">
     <div class="detail-book-info">
         <h2 class="detail-book-title">{{ book.title }}</h2>
         <p><strong>Автор:</strong> {{ book.author.first_name }} {{ book.author.last_name }}</p>
@@ -25,10 +21,10 @@
     </div>
 </div>
 {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-            <div class="message {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    </div>
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
 {% endif %}
 {% endblock content %}

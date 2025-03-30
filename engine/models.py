@@ -43,13 +43,13 @@ class Book(models.Model):
     amount = models.IntegerField(verbose_name="Количество экземпляров")  # Количество экземпляров
     web_amount = models.IntegerField(default=0, verbose_name="Количество экземпляров в интернет-библиотеке")
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name="Издатель")  # Связь с издателем
-    fb2file = models.FileField(upload_to='books/', max_length=100, null=True, verbose_name="Файл книги")
+    fb2file = models.FileField(upload_to='books/', max_length=100, blank=True, verbose_name="Файл книги")
     summary = models.TextField(
         max_length=1000,
         help_text="Введите краткое описание книги",
         verbose_name="Аннотация книги",
     )  # Аннотация книги
-    cover_url = models.URLField(blank=True, null=True)
+    cover = models.ImageField(upload_to='covers/', verbose_name='Обложка', blank=False)
     class Meta:
         verbose_name = "Книга"
         verbose_name_plural = "Книги"

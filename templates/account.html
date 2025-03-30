@@ -6,12 +6,17 @@
 <div class="logout-container">
     <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
-        <button type="submit" class="form-button">Выйти</button>
+        <button type="submit" class="form-button">Выйти из профиля</button>
     </form>
 </div>
+
 <div class="account-container">
     <h1>Взятые книги</h1>
+
     {% if issued_books %}
+
+    <!-- Десктопная таблица -->
+    <div class="desktop-view">
         <table class="styled-table">
             <thead>
                 <tr>
@@ -28,9 +33,10 @@
                     <td>{{ issue.book.title }}</td>
                     <td>{{ issue.book.author.first_name }} {{ issue.book.author.last_name }}</td>
                     <td>{{ issue.issue_date }}</td>
-                    <td>{% if issue.is_web %}{{"Веб версия"}}{% else %}Физическая версия{% endif %}</td>
+                    <td>{% if issue.is_web %}Веб версия{% else %}Физическая версия{% endif %}</td>
                     <td>
-                        {% if issue.return_date %}{{ issue.return_date }}
+                        {% if issue.return_date %}
+                        {{ issue.return_date }}
                         {% elif issue.is_web %}
                         <form method="post" action="{% url 'return_book' issue.id %}">
                             {% csrf_token %}
@@ -44,9 +50,37 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <!-- Мобильные карточки -->
+    <div class="mobile-view">
+        {% for issue in issued_books %}
+        <div class="mobile-card">
+            <p><strong>Название книги:</strong> {{ issue.book.title }}</p>
+            <p><strong>Автор:</strong> {{ issue.book.author.first_name }} {{ issue.book.author.last_name }}</p>
+            <p><strong>Дата взятия:</strong> {{ issue.issue_date }}</p>
+            <p><strong>Тип:</strong> {% if issue.is_web %}Веб версия{% else %}Физическая версия{% endif %}</p>
+            <p><strong>Дата возврата:</strong>
+                {% if issue.return_date %}
+                {{ issue.return_date }}
+                {% elif issue.is_web %}
+                <form method="post" action="{% url 'return_book' issue.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="form-button">Вернуть</button>
+                </form>
+                {% else %}
+                Не возвращена
+                {% endif %}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+
     {% else %}
-        <p>Вы еще не взяли ни одной книги.</p>
+    <p>Вы еще не взяли ни одной книги.</p>
     {% endif %}
 </div>
+
+
 
 {% endblock content %}
