@@ -62,6 +62,9 @@ class BookListAPIView(APIView):
                 "year": book.year,
                 "genre": book.genre.name,
                 "publisher": book.publisher.name,
+                "cover": book.cover.url if book.cover else None,
+                "amount": book.amount,
+                "web_amount": book.web_amount,
                 "file": "Есть электронная версия" if book.fb2file else "Нет электронной версии"
             })
 
@@ -88,7 +91,7 @@ class BookDetailAPIView(APIView):
             'Описание': book_instance.summary if book_instance.summary else None,
             'Жанр': book_instance.genre.name if book_instance.genre else None,
             'ISBN': book.get_isbn() if book else None,
-            'Обложка': book_instance.cover_url.replace('\\', '/') if book_instance.cover_url else None,
+            'Обложка': book_instance.cover.url if book_instance.cover else None,
             'file': "Есть электронная версия" if book_instance.fb2file else "Файл не загружен",
         }
         
