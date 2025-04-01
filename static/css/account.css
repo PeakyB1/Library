@@ -75,29 +75,6 @@
 .mobile-card p {
   margin: 5px 0;
 }
-@media (max-width: 900px) {
-  .account-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    background: none;
-    padding: 0px;
-    border-radius: 10px;
-    box-shadow: none;
-    margin: 20px auto;
-    max-width: 1200px;
-  }
-  .account-container h1 {
-    display: none;
-  }
-  .desktop-view {
-    display: none;
-  }
-  .mobile-view {
-    display: block;
-  }
-}
-
 
 .login-container, .register-container{
   width: 400px; /* фиксированная ширина */
@@ -150,3 +127,28 @@
   text-align: center;
 }
 
+@media (max-width: 900px) {
+  .account-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: none;
+    padding: 0px;
+    border-radius: 10px;
+    box-shadow: none;
+    margin: 20px auto;
+    max-width: 1200px;
+  }
+  .account-container h1 {
+    display: none;
+  }
+  .desktop-view {
+    display: none;
+  }
+  .mobile-view {
+    display: block;
+  }
+  .login-container, .register-container {
+    width: 100%;
+  }
+}
