@@ -1,0 +1,79 @@
+.detail-book-details {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  width: auto;
+  margin: auto;
+  padding: 20px;
+  background-color: var(--main-beige);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.detail-cover-image {
+  min-width: 250px;
+  width: 20vw;
+  aspect-ratio: 2/3;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  object-fit: fill;
+}
+
+.detail-book-title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--main-orange);
+  margin-bottom: 0.8em;
+}
+
+.detail-book-info p {
+  font-size: 1.4rem;
+  color: var(--main-gray);
+  text-align: left;
+}
+
+.detail-book-info p strong {
+  font-size: 1.3rem;
+}
+.detail-buttons {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.detail-take-button {
+  padding: 10px;
+  background-color: var(--no_hover-orange);
+  color: #fff;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: var(--shadow);
+}
+
+.detail-take-button:hover {
+  background-color: var(--hover-orange);
+  transform: scale(1.05);
+}
+
+.detail-take-button:active {
+  transform: scale(1);
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 900px) {
+  .detail-cover-image {
+    width: 100%;
+  }
+  .detail-buttons {
+    flex-direction: column;
+  }
+  .detail-book-details {
+    flex-direction: column;
+  }
+}

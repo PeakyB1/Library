@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
-
+{% load static %}
+{% block head %}
+<link href="{% static 'css/search.css' %}?{% now "U" %}" rel="stylesheet">
+{% endblock head %}
 {% block content %}
 <div>
     <form method="get" action="" class="search-form">
@@ -13,37 +16,36 @@
 
 
 <div class="book-list">
-        {% for book in books %}
-            <a href={% url 'book_detail' id=book.id %} class="book-item">
-                <div>
-                    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="cover-image">
-
-                </div>
-                <div class="book-info">
-                    <h3>{{ book.title }}</h3>
-                    <p>{{ book.author }}</p>
-                </div>
-            </a>
-        {% endfor %}
+    {% for book in books %}
+    <a href={% url 'book_detail' id=book.id %} class="book-item">
+        <div class="cover-image">
+            <img src="{{ book.cover.url }}" alt="{{ book.title }}">
+        </div>
+        <div class="book-info">
+            <h3>{{ book.title }}</h3>
+            <p>{{ book.author }}</p>
+        </div>
+    </a>
+    {% endfor %}
 </div>
 
 <div class="pagination">
     {% if current_page > 1 %}
-        <a href="?page=1" class="page-link">&laquo;&laquo;</a>
-        <a href="?page={{ current_page|add:"-1" }}" class="page-link">&laquo;</a>
+    <a href="?page=1" class="page-link">&laquo;&laquo;</a>
+    <a href="?page={{ current_page|add:"-1" }}" class="page-link">&laquo;</a>
     {% endif %}
-    
+
     {% for page_num in page_range %}
-        {% if page_num == current_page %}
-            <span class="page-link active">{{ page_num }}</span>
-        {% else %}
-            <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
-        {% endif %}
+    {% if page_num == current_page %}
+    <span class="page-link active">{{ page_num }}</span>
+    {% else %}
+    <a href="?page={{ page_num }}" class="page-link">{{ page_num }}</a>
+    {% endif %}
     {% endfor %}
-    
+
     {% if current_page < total_pages %}
-        <a href="?page={{ current_page|add:"1" }}" class="page-link">&raquo;</a>
-        <a href="?page={{ total_pages }}" class="page-link">&raquo;&raquo;</a>
+    <a href="?page={{ current_page|add:"1" }}" class="page-link">&raquo;</a>
+    <a href="?page={{ total_pages }}" class="page-link">&raquo;&raquo;</a>
     {% endif %}
 </div>
 {% endblock %}

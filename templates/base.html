@@ -1,18 +1,41 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>BIBALARY</title>
     <link rel="icon" type="image/png" href="{% static 'images/book.png' %}">
-    <link href="{% static 'css/reset.css' %}" rel="stylesheet">
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/reset.css' %}?{% now "U" %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}?{% now "U" %}" rel="stylesheet">
+    <link href="{% static 'css/index.css' %}?{% now "U" %}" rel="stylesheet">
+    <link href="{% static 'css/account.css' %}?{% now "U" %}" rel="stylesheet">
+    {% block head %}
+    {% endblock %}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700display=swap" rel="stylesheet">
 </head>
+
 <body class="page-background {% block background_class %}{% endblock background_class %}">
     <header>
         <a href="/" class="logo">BIBALARY</a>
-        <nav>
+        <a href="/" class="mobile-logo">BIBA</a>
+        <nav class="menu">
+            <ul>
+                <li><a href="{% url 'search' %}">Поиск книг</a></li>
+                <li><a href="{% url 'account' %}">Профиль</a></li>
+                <li><a href="{% url 'about' %}">О нас</a></li>
+                <li><a href="{% url 'contact' %}">Контакты</a></li>
+            </ul>
+        </nav>
+        <input type="checkbox" id="menu-toggle" class="menu-checkbox" />
+        <label for="menu-toggle" class="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+        <nav class="mobile-menu">
             <ul>
                 <li><a href="{% url 'search' %}">Поиск книг</a></li>
                 <li><a href="{% url 'account' %}">Профиль</a></li>
@@ -21,7 +44,7 @@
             </ul>
         </nav>
     </header>
-    
+
     <main>
         {% block content %}
         <!-- Контент из дочернего шаблона -->
@@ -29,7 +52,8 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 BIBALARY. Все права защищены.</p>
+        <p>&copy; 2025 BIBALARY. Все права защищены.</p>
     </footer>
 </body>
+
 </html>

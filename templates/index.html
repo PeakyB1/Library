@@ -3,7 +3,7 @@
 {% block title %}Index{% endblock title %}
 {% block background_class %}background-home{% endblock background_class %}
 {% block content %}
-<section class="home-search">
+<div class="home-search">
     <h1>BIBALARY</h1>
     <form method="get" action="{% url 'search' %}" class="home-search-form">
         <input type="text" name="query" placeholder="Напишите название книги..." class="home-search-input">
@@ -11,5 +11,5 @@
             <img src="static/images/search-icon.png" alt="Поиск" class="search-icon">
         </button>
     </form>
-</section>
+</div>
 {% endblock content %}

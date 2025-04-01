@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Контакты{% endblock title %}
 {% block background_class %}background-contact{% endblock background_class %}
+{% load static %}
+{% block head %}
+<link href="{% static 'css/about.css' %}?{% now "U" %}" rel="stylesheet">
+{% endblock head %}
 {% block content %}
-<div class="contact-container">
+<div class="about-container">
     <h1>Свяжитесь с нами</h1>
     <p>
-        Если у вас есть вопросы, предложения или вы хотите узнать больше о нашей библиотеке, мы всегда готовы вам помочь!
+        Если у вас есть вопросы, предложения или вы хотите узнать больше о нашей библиотеке, мы всегда готовы вам
+        помочь!
     </p>
     <h2>Контактная информация</h2>
     <ul>

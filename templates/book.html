@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block title %}Детали книги{% endblock title %}
-
+{% load static %}
+{% block head %}
+<link href="{% static 'css/book.css' %}?{% now "U" %}" rel="stylesheet">
+{% endblock head %}
 {% block content %}
 <div class="detail-book-details">
     <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="detail-cover-image">
