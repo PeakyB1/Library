@@ -7,7 +7,9 @@
 {% endblock head %}
 {% block content %}
 <div class="detail-book-details">
-    <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="detail-cover-image">
+    <div class="detail-cover-image">
+        <img src="{{ book.cover.url }}" alt="{{ book.title }}">
+    </div>
     <div class="detail-book-info">
         <h2 class="detail-book-title">{{ book.title }}</h2>
         <p><strong>Автор:</strong> {{ book.author.first_name }} {{ book.author.last_name }}</p>
@@ -23,11 +25,4 @@
         </div>
     </div>
 </div>
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="message {{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
 {% endblock content %}

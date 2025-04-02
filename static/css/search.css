@@ -76,6 +76,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -102,11 +103,13 @@
 
 .book-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Адаптивные карточки */
+  grid-template-columns: repeat(auto-fit, minmax(350px, max-content));
   gap: 15px;
   padding-top: 20px;
   padding-bottom: 20px;
+
   justify-items: center;
+  
 }
 
 .book-item {
@@ -118,6 +121,7 @@
   transition: transform 0.3s, box-shadow 0.3s;
   text-decoration: none;
   width: 100%;
+  max-width: 350px;
 }
 
 .book-item:hover {

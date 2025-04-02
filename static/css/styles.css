@@ -188,6 +188,34 @@ nav ul li a:hover {
 .menu-checkbox:checked ~ .mobile-menu {
   max-height: 400px;
 }
+/* === Стили для сообщений об ошибках и успехах === */
+.messages {
+  margin: 1vw 0;
+}
+
+.message {
+  padding: 1vw;
+  border-radius: 10px;
+  margin-bottom: 1vw;
+  font-size: 1em;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  margin: 0 auto;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  margin: 0 auto;
+}
+
 /* === Основной контент === */
 /* === Футер === */
 footer {

@@ -53,17 +53,19 @@ def takeBook(request, id):
     if unreturned_books_count >= 5:
         messages.error(request, "Вы не можете взять больше 5 книг.")
         return redirect('book_detail', id=id)
-    
-    if book.amount <= 0 or book.web_amount <= 0:
+    if is_web=='True' and book.web_amount <= 0:
         messages.error(request, "Нет доступных экземпляров книги.")
         return redirect('book_detail', id=id)
-    if is_web:
+    if is_web=='False' and book.amount <= 0:
+        messages.error(request, "Нет доступных экземпляров книги.")
+        return redirect('book_detail', id=id)
+    if is_web=='True':
         IssueOfBooks.objects.create(book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web)
         book.web_amount -= 1
         book.save()
         messages.success(request, "Книга успешно взята.")
         return redirect('account')
-    if not is_web:
+    if is_web=='False':
         IssueOfBooks.objects.create(book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web)
         book.amount -= 1
         book.save()

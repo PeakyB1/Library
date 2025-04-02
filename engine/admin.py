@@ -5,17 +5,21 @@ from django.db.models import F
 # Register your models here.
 
 class IssueOfBooksAdmin(admin.ModelAdmin):
-    list_display = ('book', 'reader', 'issue_date', 'return_date')
+    list_display = ('book', 'reader', 'issue_date', 'return_date', 'is_web')
 
     @admin.action(description="Отметить как возвращенные")
     def mark_as_returned(self, request, queryset):
-        for issues in queryset:
-            if not issues.return_date:
-                issues.return_date = datetime.date.today()
-                issues.book.amount = F('amount') + 1
-                issues.save()
-                issues.book.save()
-
+        for issue in queryset:
+            if not issue.return_date:
+                issue.return_date = datetime.date.today()
+                issue.save(update_fields=['return_date'])  # Сохраняем return_date
+                
+                if issue.is_web:
+                    issue.book.web_amount = F('web_amount') + 1
+                    issue.book.save(update_fields=['web_amount'])
+                else:
+                    issue.book.amount = F('amount') + 1
+                    issue.book.save(update_fields=['amount'])
     actions = [mark_as_returned]
 
 
