@@ -6,9 +6,6 @@ from django.db.models import Q
 from .forms import BookFilterForm
 from .models import Genre, Book, IssueOfBooks, Author
 import datetime 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-import fb2reader
 # Create your views here.
 def index(request):
     return render(request, "index.html")
@@ -77,7 +74,7 @@ class SearchBooksView(ListView):
     model = Book
     template_name = 'search.html'
     context_object_name = 'books'
-    paginate_by = 5  # 5 книг на страницу
+    paginate_by = 5 # 5 книг на страницу
 
     def get_queryset(self):
         """
