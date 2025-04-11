@@ -1,6 +1,8 @@
 /* === Общие стили === */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-
+::-webkit-scrollbar {
+  width: 0;
+}
 :root {
   --main-orange: #ff945b;
   --main-gray: #555;
