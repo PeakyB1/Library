@@ -115,9 +115,6 @@ class SearchBooksView(ListView):
         """
         context = super().get_context_data(**kwargs)
         context['form'] = self.form
-        context['page_range'] = context['paginator'].get_elided_page_range(number=context['page_obj'].number)
-        context['current_page'] = context['page_obj'].number
-        context['total_pages'] = context['paginator'].num_pages
         return context
     
 
