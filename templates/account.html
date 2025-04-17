@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="logout-container">
-    <form method="post" action="{% url 'logout' %}">
+    <form method="post" action="{% url 'user_logout' %}">
         {% csrf_token %}
         <button type="submit" class="form-button">Выйти из профиля</button>
     </form>

@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 from . import views
 
 urlpatterns = [
@@ -7,4 +7,6 @@ urlpatterns = [
     path('v1/book/genres/', views.GenreListAPIView.as_view()),
     path('v1/book/text/<int:id>/', views.TextAPIView.as_view()),
     path('v1/drf-auth/', include('rest_framework.urls')),
+    path('v1/auth/', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
 ]

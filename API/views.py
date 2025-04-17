@@ -7,6 +7,7 @@ from engine.models import Book
 from engine.models import Genre
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 import fb2reader
 class fb2_parser(fb2reader.fb2book):
     def get_translators(self):
@@ -20,10 +21,12 @@ class fb2_parser(fb2reader.fb2book):
         return translators
 # Create your views here.
 class GenreListAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
     def get(self, request):
         genres = Genre.objects.values('id', 'name')
         return Response(genres)
 class BookListAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
     def get(self, request):
         query = request.GET.get('query')
         genre = request.GET.get('genre')
@@ -52,7 +55,6 @@ class BookListAPIView(APIView):
                     Q(author__first_name__iregex=last_name, author__last_name__iregex=first_name)
                 )
 
-        # Формируем список книг вручную, без использования values()
         books_list = []
         for book in books:
             books_list.append({
@@ -72,6 +74,7 @@ class BookListAPIView(APIView):
 
 
 class BookDetailAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
     def get(self, request, id):
         try:
             book_instance = Book.objects.get(id=id)
@@ -97,6 +100,7 @@ class BookDetailAPIView(APIView):
         
         return Response(response_data)
 class TextAPIView(APIView):
+    permission_classes = (IsAuthenticated, )
     def get(self, request, id):
         try:
             book_instance = Book.objects.get(id=id)
