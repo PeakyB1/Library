@@ -10,7 +10,7 @@ urlpatterns = [
     path('v1/account/', views.Account.as_view()),
     path('v1/auth/', include('djoser.urls')),
     path('v1/book/take/<int:pk>/', views.TakeBook.as_view()),
-    path('v1/book/return/<int:pk>/', views.ReturnBook.as_view()),
+    path('v1/account/return/<int:pk>/', views.ReturnBook.as_view()),
     path('v1/account/mybooks/', views.MyBooks.as_view()),
     re_path(r'^v1/auth/', include('djoser.urls.authtoken')),
 ]

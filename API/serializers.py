@@ -16,6 +16,8 @@ class fb2_parser(fb2reader.fb2book):
 
 
 class IssueOfBooksSerializer(serializers.ModelSerializer):
+    book = serializers.PrimaryKeyRelatedField(read_only=True)
+    cover = serializers.ImageField(source="book.cover", read_only=True)
     class Meta:
         model = IssueOfBooks
         fields = [
@@ -23,6 +25,7 @@ class IssueOfBooksSerializer(serializers.ModelSerializer):
             "issue_date",
             "return_date",
             "book",
+            "cover",
             "reader",
             "is_web",
         ]

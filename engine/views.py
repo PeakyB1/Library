@@ -40,6 +40,13 @@ def returnBook(request, id):
     if not issue.is_web:
         messages.error(request, "Только книги, взятые через веб, можно возвращать.")
         return redirect("account")
+    # Проверяем, что книга была выдана текущему пользователю
+    if issue.reader != request.user:
+        messages.error(request, "Ошибка при возврате книги.")
+        return redirect("account")
+    if issue.return_date is not None:
+        messages.error(request, "Книга уже была возвращена.")
+        return redirect("account")
     issue.return_date = datetime.date.today()
     issue.save()
     book.web_amount += 1

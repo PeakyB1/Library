@@ -1,3 +1,4 @@
+import datetime
 from rest_framework.exceptions import ValidationError
 from django.http import HttpResponse
 from django.db.models import Q
@@ -32,7 +33,7 @@ class fb2_parser(fb2reader.fb2book):
 
 # Create your views here.
 class TakeBook(generics.CreateAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
 
     def perform_create(self, serializer):
@@ -44,22 +45,41 @@ class TakeBook(generics.CreateAPIView):
 
         if IssueOfBooks.objects.filter(
             reader=user, book=book, return_date__isnull=True
-        ):
-            raise ValidationError({"error": "Вы уже взяли эту книгу и не вернули."})
+        ).exists():
+            raise ValidationError({"error": "Вы уже взяли эту книгу."})
+
         if unreturned_books_count >= 5:
             raise ValidationError(
                 {"error": "Вы не можете взять больше 5 книг одновременно."}
             )
-
+        if book.web_amount <= 0:
+            raise ValidationError({"error": "Нет доступных экземпляров этой книги."})
         serializer.save(reader=user, book=book, is_web=True)
 
 
 class ReturnBook(generics.UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
-    queryset = IssueOfBooks.objects.all()
 
+    def perform_update(self, serializer):
+        user = self.request.user
+        issue = IssueOfBooks.objects.get(id=self.kwargs["pk"])
+        book = issue.book
 
+        if not issue.is_web:
+            raise ValidationError(
+                {"error": "Только книги, взятые через веб, можно возвращать."}
+            )
+        if issue.return_date is not None:
+            raise ValidationError({"error": "Книга уже была возвращена."})
+
+        serializer.save(return_date=datetime.date.today())
+        book.web_amount += 1
+        book.save()
+        return Response({"success": "Книга успешно возвращена."})
+
+    def get_queryset(self):
+        return IssueOfBooks.objects.filter(reader=self.request.user)
 
 
 class BookDetailAPIView(generics.RetrieveAPIView):
@@ -74,12 +94,17 @@ class Account(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
 class MyBooks(generics.ListAPIView):
     # permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
 
     def get_queryset(self):
-        return IssueOfBooks.objects.filter(reader=self.request.user).order_by('-issue_date')
+        return IssueOfBooks.objects.filter(reader=self.request.user).order_by(
+            "return_date"
+        )
+
 
 class GenreListAPIView(generics.ListAPIView):
     # permission_classes = (IsAuthenticated,)
