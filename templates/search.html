@@ -32,7 +32,7 @@
 {% if page_obj.has_other_pages %}
 <div class="pagination">
     {% for p in paginator.page_range %}
-        <a href="{% spurl base=request.get_full_path add_query='page={{p}}' %}" class="page-link">{{ p }}</a>
+        <a href="{% spurl base=request.get_full_path set_query='page={{p}}' %}" class="page-link">{{ p }}</a>
     {% endfor %}
 </div>
 {% endif %}
