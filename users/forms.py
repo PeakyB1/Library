@@ -22,7 +22,6 @@ class RegisterForm(UserCreationForm):
     )
     error_messages = {
         'password_mismatch': "Пароли не совпадают.",
-        'username_exists': "Пользователь с таким именем уже существует.",
         }
     class Meta:
         model = get_user_model()

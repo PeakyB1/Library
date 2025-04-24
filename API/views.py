@@ -1,42 +1,105 @@
+from rest_framework.exceptions import ValidationError
 from django.http import HttpResponse
-from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from django.db.models import Q
-from engine.models import Book
+from API.serializers import (
+    BookDetailSerializer,
+    GenreSerializer,
+    BookListSerializer,
+    IssueOfBooksSerializer,
+)
+from engine.models import Book, IssueOfBooks
 from engine.models import Genre
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
 import fb2reader
+from djoser.serializers import UserSerializer
+
+
+# Фикс для fb2reader
 class fb2_parser(fb2reader.fb2book):
     def get_translators(self):
         translators = []
-        for translator in self.soup.find_all('translator'):
-            first_name = translator.find('first-name').text
-            last_name = translator.find('last-name').text
+        for translator in self.soup.find_all("translator"):
+            first_name = translator.find("first-name").text
+            last_name = translator.find("last-name").text
             if first_name != None:
-                translatorsFL = first_name + " " + last_name    
+                translatorsFL = first_name + " " + last_name
                 translators.append(translatorsFL)
         return translators
+
+
 # Create your views here.
-class GenreListAPIView(APIView):
-    permission_classes = (IsAuthenticated, )
-    def get(self, request):
-        genres = Genre.objects.values('id', 'name')
-        return Response(genres)
-class BookListAPIView(APIView):
-    permission_classes = (IsAuthenticated, )
-    def get(self, request):
-        query = request.GET.get('query')
-        genre = request.GET.get('genre')
-        year = request.GET.get('year')
-        author = request.GET.get('author')
+class TakeBook(generics.CreateAPIView):
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = IssueOfBooksSerializer
 
-        books = Book.objects.all().select_related('genre', 'author', 'publisher') 
+    def perform_create(self, serializer):
+        user = self.request.user
+        book = Book.objects.get(id=self.kwargs["pk"])
+        unreturned_books_count = IssueOfBooks.objects.filter(
+            reader=user, return_date__isnull=True
+        ).count()
 
+        if IssueOfBooks.objects.filter(
+            reader=user, book=book, return_date__isnull=True
+        ):
+            raise ValidationError({"error": "Вы уже взяли эту книгу и не вернули."})
+        if unreturned_books_count >= 5:
+            raise ValidationError(
+                {"error": "Вы не можете взять больше 5 книг одновременно."}
+            )
+
+        serializer.save(reader=user, book=book, is_web=True)
+
+
+class ReturnBook(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = IssueOfBooksSerializer
+    queryset = IssueOfBooks.objects.all()
+
+
+
+
+class BookDetailAPIView(generics.RetrieveAPIView):
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = BookDetailSerializer
+    queryset = Book.objects.all()
+
+
+class Account(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+class MyBooks(generics.ListAPIView):
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = IssueOfBooksSerializer
+
+    def get_queryset(self):
+        return IssueOfBooks.objects.filter(reader=self.request.user).order_by('-issue_date')
+
+class GenreListAPIView(generics.ListAPIView):
+    # permission_classes = (IsAuthenticated,)
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class BookListAPIView(generics.ListAPIView):
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = BookListSerializer
+
+    def get_queryset(self):
+        query = self.request.GET.get("query")
+        genre = self.request.GET.get("genre")
+        year = self.request.GET.get("year")
+        author = self.request.GET.get("author")
+
+        books = Book.objects.all().select_related("genre", "author", "publisher")
         if query:
-                books = books.filter(title__iregex=query)
+            books = books.filter(title__iregex=query)
         if genre:
             books = books.filter(genre_id=genre)
         if year:
@@ -45,70 +108,35 @@ class BookListAPIView(APIView):
             author_parts = author.split()
             if len(author_parts) == 1:
                 books = books.filter(
-                    Q(author__first_name__iregex=author_parts[0]) | 
-                    Q(author__last_name__iregex=author_parts[0])
+                    Q(author__first_name__iregex=author_parts[0])
+                    | Q(author__last_name__iregex=author_parts[0])
                 )
             elif len(author_parts) >= 2:
                 first_name, last_name = author_parts[:2]
                 books = books.filter(
-                    Q(author__first_name__iregex=first_name, author__last_name__iregex=last_name) |
-                    Q(author__first_name__iregex=last_name, author__last_name__iregex=first_name)
+                    Q(
+                        author__first_name__iregex=first_name,
+                        author__last_name__iregex=last_name,
+                    )
+                    | Q(
+                        author__first_name__iregex=last_name,
+                        author__last_name__iregex=first_name,
+                    )
                 )
-
-        books_list = []
-        for book in books:
-            books_list.append({
-                "id": book.id,
-                "title": book.title,
-                "author": f"{book.author.first_name} {book.author.last_name}",
-                "year": book.year,
-                "genre": book.genre.name,
-                "publisher": book.publisher.name,
-                "cover": book.cover.url if book.cover else None,
-                "amount": book.amount,
-                "web_amount": book.web_amount,
-                "file": "Есть электронная версия" if book.fb2file else "Нет электронной версии"
-            })
-
-        return Response(books_list)
+        return books
 
 
-class BookDetailAPIView(APIView):
-    permission_classes = (IsAuthenticated, )
-    def get(self, request, id):
-        try:
-            book_instance = Book.objects.get(id=id)
-        except Book.DoesNotExist:
-            return Response({"error": "Книга не найдена"}, status=404)
-        
-        book = fb2_parser(book_instance.fb2file.path) if book_instance.fb2file else None
-        
-        response_data = {
-            'Название': book_instance.title if book_instance.title else None,
-            'Год': book_instance.year if book_instance.year else None,
-            'Идентификатор': book.get_identifier() if book else None,
-            'Авторы': f"{book_instance.author.first_name} {book_instance.author.last_name}" if book_instance.author else None,
-            'Переводчики': book.get_translators() if book else None,
-            'Серия': book.get_series() if book else None,
-            'Язык': book.get_lang() if book else None,
-            'Описание': book_instance.summary if book_instance.summary else None,
-            'Жанр': book_instance.genre.name if book_instance.genre else None,
-            'ISBN': book.get_isbn() if book else None,
-            'Обложка': book_instance.cover.url if book_instance.cover else None,
-            'file': "Есть электронная версия" if book_instance.fb2file else "Файл не загружен",
-        }
-        
-        return Response(response_data)
 class TextAPIView(APIView):
-    permission_classes = (IsAuthenticated, )
+    # permission_classes = (IsAuthenticated,)
+
     def get(self, request, id):
         try:
             book_instance = Book.objects.get(id=id)
         except Book.DoesNotExist:
             return Response({"error": "Книга не найдена"}, status=404)
-        
+
         book = fb2_parser(book_instance.fb2file.path) if book_instance.fb2file else None
-        
-        body = book.get_body() if book else None,
-        
+
+        body = (book.get_body() if book else None,)
+
         return HttpResponse(body)

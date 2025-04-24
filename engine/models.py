@@ -61,7 +61,7 @@ class Book(models.Model):
 class IssueOfBooks(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")  # Связь с книгой
     reader = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts',null=True, default=None)
-    issue_date = models.DateField(verbose_name="Дата выдачи")  # Дата выдачи книги
+    issue_date = models.DateField(verbose_name="Дата выдачи", auto_now_add=True)  # Дата выдачи книги
     return_date = models.DateField(null=True, blank=True, verbose_name="Дата возврата")  # Дата возврата книги
     is_web = models.BooleanField(verbose_name="Веб-версия", default=False)  # Флаг для веб-версии книги
     class Meta:
