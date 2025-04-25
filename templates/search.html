@@ -31,9 +31,19 @@
 </div>
 {% if page_obj.has_other_pages %}
 <div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="page-link"><</a>
+    {% endif %}
     {% for p in paginator.page_range %}
-        <a href="{% spurl base=request.get_full_path set_query='page={{p}}' %}" class="page-link">{{ p }}</a>
+    {% if p == page_obj.number %}
+    <span class="page-link active">{{ p }}</span>
+    {% else %}
+    <a href="{% spurl base=request.get_full_path set_query='page={{p}}' %}" class="page-link">{{ p }}</a>
+    {% endif %}
     {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="page-link">></a>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}
