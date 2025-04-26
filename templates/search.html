@@ -32,7 +32,7 @@
 {% if page_obj.has_other_pages %}
 <div class="pagination">
     {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}" class="page-link"><</a>
+        <a href="{% spurl base=request.get_full_path set_query='page={{page_obj.previous_page_number}}' %}" class="page-link"><</a>
     {% endif %}
     {% for p in paginator.page_range %}
     {% if p == page_obj.number %}
@@ -42,7 +42,7 @@
     {% endif %}
     {% endfor %}
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="page-link">></a>
+        <a href="{% spurl base=request.get_full_path set_query='page={{page_obj.next_page_number}}' %}" class="page-link">></a>
     {% endif %}
 </div>
 {% endif %}
