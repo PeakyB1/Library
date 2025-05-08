@@ -24,17 +24,6 @@ main{
   margin: auto;
 }
 
-.form-button {
-  background-color: var(--no_hover-orange);
-  color: #fff;
-  border: none;
-  padding: 10px;
-  width: 100%;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
 .form-button:hover {
   background-color: var(--hover-orange);
 }

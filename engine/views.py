@@ -104,7 +104,7 @@ class SearchBooksView(ListView):
     model = Book
     template_name = "search.html"
     context_object_name = "books"
-    paginate_by = 5  # 5 книг на страницу
+    paginate_by = 5 
 
     def get_queryset(self):
         """
