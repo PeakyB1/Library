@@ -11,7 +11,13 @@
 </div>
 
 <div class="account-container">
-    <h1>Взятые книги</h1>
+    <div class="books-count-informer">
+        <strong>Взято книг:</strong>
+        <span class="books-count">{{ books_count }}</span>
+        <span>из</span>
+        <span class="books-count">5</span>
+    </div>
+
 
     {% if issued_books %}
 
@@ -80,7 +86,5 @@
     <p>Вы еще не взяли ни одной книги.</p>
     {% endif %}
 </div>
-
-
 
 {% endblock content %}

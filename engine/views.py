@@ -21,8 +21,10 @@ def about(request):
 def account(request):
     user = request.user
     issued_books = IssueOfBooks.objects.filter(reader=user).order_by("return_date")
+    books_count = issued_books.filter(return_date__isnull=True).count()
     context = {
         "issued_books": issued_books,
+        "books_count": books_count,
     }
     return render(request, "account.html", context)
 

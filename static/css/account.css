@@ -12,6 +12,21 @@ main{
   margin: 20px auto;
   max-width: 1200px;
 }
+.books-count-informer {
+    padding: 10px 15px;
+    background: #f1f8ef;
+    border-radius: 8px;
+    width: fit-content;
+    margin: 0 auto;
+    font-size: larger;
+}
+.books-count-informer strong {
+   color: #555555;
+}
+.books-count {
+    color: #267b38;
+    font-weight: 500;
+}
 
 .account-container h1 {
   text-align: center;
