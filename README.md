@@ -1,4 +1,4 @@
-# BibaLary Management System
+# BIBALARY Management System
 
 ## Описание
 
