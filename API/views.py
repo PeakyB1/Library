@@ -14,21 +14,21 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-import fb2reader
+from fb2reader import fb2book
 from djoser.serializers import UserSerializer
 
 
 # Фикс для fb2reader
-class fb2_parser(fb2reader.fb2book):
-    def get_translators(self):
-        translators = []
-        for translator in self.soup.find_all("translator"):
-            first_name = translator.find("first-name").text
-            last_name = translator.find("last-name").text
-            if first_name != None:
-                translatorsFL = first_name + " " + last_name
-                translators.append(translatorsFL)
-        return translators
+# class fb2_parser(fb2reader.fb2book):
+#     def get_translators(self):
+#         translators = []
+#         for translator in self.soup.find_all("translator"):
+#             first_name = translator.find("first-name").text
+#             last_name = translator.find("last-name").text
+#             if first_name != None:
+#                 translatorsFL = first_name + " " + last_name
+#                 translators.append(translatorsFL)
+#         return translators
 
 
 # Create your views here.
@@ -83,7 +83,7 @@ class ReturnBook(generics.UpdateAPIView):
 
 
 class BookDetailAPIView(generics.RetrieveAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = BookDetailSerializer
     queryset = Book.objects.all()
 
@@ -97,7 +97,7 @@ class Account(generics.RetrieveAPIView):
 
 
 class MyBooks(generics.ListAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
 
     def get_queryset(self):
@@ -107,13 +107,13 @@ class MyBooks(generics.ListAPIView):
 
 
 class GenreListAPIView(generics.ListAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class BookListAPIView(generics.ListAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = BookListSerializer
 
     def get_queryset(self):
@@ -152,7 +152,7 @@ class BookListAPIView(generics.ListAPIView):
 
 
 class TextAPIView(APIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, id):
         try:
@@ -160,7 +160,7 @@ class TextAPIView(APIView):
         except Book.DoesNotExist:
             return Response({"error": "Книга не найдена"}, status=404)
 
-        book = fb2_parser(book_instance.fb2file.path) if book_instance.fb2file else None
+        book = fb2book(book_instance.fb2file.path) if book_instance.fb2file else None
 
         body = (book.get_body() if book else None,)
 
