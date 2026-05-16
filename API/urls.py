@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('v1/book/<int:pk>/', views.BookDetailAPIView.as_view()),
+    path('v1/book/<int:book_id>/toc/', views.BookTOCAPIView.as_view()),
+    path('v1/chapter/<int:pk>/', views.ChapterContentAPIView.as_view()),
     path('v1/book/list/', views.BookListAPIView.as_view()),
     path('v1/book/genres/', views.GenreListAPIView.as_view()),
     path('v1/book/text/<int:id>/', views.TextAPIView.as_view()),

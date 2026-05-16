@@ -1,14 +1,43 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Регистрация{% endblock title %}
-
+{% block head %}
+<link href="{% static 'css/auth.css' %}?{% now "U" %}" rel="stylesheet">
+{% endblock head %}
 {% block content %}
 <div class="register-container">
     <h1>Регистрация</h1>
-    <form method="post">
+
+    {% if form.non_field_errors %}
+        <div class="form-error-global">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" novalidate>
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="form-button">Зарегистрироваться</button>
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.errors %}
+                    <div class="form-error">
+                        {% for error in field.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="form-button">
+            Зарегистрироваться
+        </button>
     </form>
 </div>
 {% endblock content %}

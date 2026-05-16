@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from engine.models import Genre, IssueOfBooks, Book
+from engine.models import Genre, IssueOfBooks, Book, TocBook
+
 # import fb2reader
 
 
@@ -17,9 +18,9 @@ from engine.models import Genre, IssueOfBooks, Book
 
 class IssueOfBooksSerializer(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(read_only=True)
-    cover = serializers.ImageField(source="book.cover", read_only=True)
     title = serializers.CharField(source="book.title", read_only=True)
     author = serializers.CharField(source="book.author", read_only=True)
+
     class Meta:
         model = IssueOfBooks
         fields = [
@@ -29,10 +30,10 @@ class IssueOfBooksSerializer(serializers.ModelSerializer):
             "book",
             "title",
             "author",
-            "cover",
             "reader",
             "is_web",
         ]
+        read_only_fields = ("is_web",)
 
 
 class BookListSerializer(serializers.ModelSerializer):
@@ -55,7 +56,7 @@ class BookListSerializer(serializers.ModelSerializer):
         depth = 1
 
     def get_file(self, obj):
-        return True if obj.fb2file else False
+        return True if obj.epub else False
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -66,11 +67,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class BookDetailSerializer(serializers.ModelSerializer):
     file = serializers.SerializerMethodField()
-    # translators = serializers.SerializerMethodField()
-    # language = serializers.SerializerMethodField()
-    # isbn = serializers.SerializerMethodField()
-    # identifier = serializers.SerializerMethodField()
-    # series = serializers.SerializerMethodField()
 
     class Meta:
         depth = 1
@@ -93,30 +89,10 @@ class BookDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_file(self, obj):
-        return bool(obj.fb2file)
-
-    # def parse_fb2(self, obj):
-    #     if not obj.fb2file:
-    #         return None
-    #     return fb2_parser(obj.fb2file.path)
-
-    # def get_translators(self, obj):
-    #     book = self.parse_fb2(obj)
-    #     return book.get_translators() if book else None
+        return bool(obj.epub)
 
 
-    # def get_language(self, obj):
-    #     book = self.parse_fb2(obj)
-    #     return book.get_lang() if book else None
-
-    # def get_isbn(self, obj):
-    #     book = self.parse_fb2(obj)
-    #     return book.get_isbn() if book else None
-        
-    # def get_identifier(self, obj):
-    #     book = self.parse_fb2(obj)
-    #     return book.get_identifier() if book else None
-
-    # def get_series(self, obj):
-    #     book = self.parse_fb2(obj)
-    #     return book.get_series() if book else None
+class TocSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TocBook
+        fields = ["toc"]

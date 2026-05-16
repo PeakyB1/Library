@@ -1,7 +1,8 @@
 import datetime
 from django.contrib import admin
-from .models import Author, Genre, Book, IssueOfBooks, Publisher
 from django.db.models import F
+from .models import Author, Genre, Book, IssueOfBooks, Publisher
+from .services import EpubImportService
 # Register your models here.
 
 class IssueOfBooksAdmin(admin.ModelAdmin):
@@ -26,6 +27,22 @@ class IssueOfBooksAdmin(admin.ModelAdmin):
 admin.site.register(IssueOfBooks, IssueOfBooksAdmin)
 admin.site.register(Author)
 admin.site.register(Genre)
-admin.site.register(Book)
 admin.site.register(Publisher)
+
+
+class BookAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        previous_file = None
+        if change and obj.pk:
+            previous_file = Book.objects.get(pk=obj.pk).epub
+
+        super().save_model(request, obj, form, change)
+
+        if obj.epub and obj.epub.name.lower().endswith('.epub'):
+            epub_changed = not change or obj.epub.name != getattr(previous_file, 'name', None)
+            if epub_changed:
+                EpubImportService(obj).parse_and_save(obj.epub.path)
+
+
+admin.site.register(Book, BookAdmin)
 

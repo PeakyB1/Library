@@ -1,0 +1,122 @@
+/* === AUTH CONTAINERS === */
+
+.login-container,
+.register-container {
+  width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--main-beige);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-weight: bolder;
+  color: #444;
+}
+
+.login-container h1,
+.register-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* === FORM === */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 0.9em;
+  margin-bottom: 4px;
+  color: #666;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1em;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: var(--main-orange);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.15);
+}
+
+.form-input.error {
+  border-color: #d64545;
+  background-color: #fff5f5;
+}
+
+/* === BUTTON === */
+
+.form-button {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--no_hover-orange);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-button:hover {
+  background-color: var(--hover-orange);
+}
+
+/* === ERRORS === */
+
+.form-error {
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #d64545;
+}
+
+.form-error span {
+  display: block;
+}
+
+.form-error-global {
+  background: #ffecec;
+  border: 1px solid #d64545;
+  color: #a12b2b;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* === LINK === */
+
+.register-link {
+  color: var(--main-orange);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+/* === TEXT === */
+
+.login-container p,
+.register-container p {
+  margin-top: 7px;
+  text-align: center;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 900px) {
+  .login-container,
+  .register-container {
+    width: 100%;
+  }
+}

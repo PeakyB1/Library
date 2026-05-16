@@ -1,55 +1,77 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+
+private_media_storage = FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT)
+
 
 class Author(models.Model):
-    first_name = models.CharField(max_length=30, verbose_name="Имя")  # Имя автора
-    last_name = models.CharField(max_length=30, verbose_name="Фамилия")  # Фамилия автора
+    first_name = models.CharField(max_length=30, verbose_name="Имя")
+    last_name = models.CharField(max_length=30, verbose_name="Фамилия")
 
     class Meta:
         verbose_name = "Автор"
         verbose_name_plural = "Авторы"
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"  # Отображение имени и фамилии автора
+        return f"{self.first_name} {self.last_name}"
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=20, verbose_name="Жанр")  # Название жанра
+    name = models.CharField(max_length=30, verbose_name="Жанр")
 
     class Meta:
         verbose_name = "Жанр"
         verbose_name_plural = "Жанры"
 
     def __str__(self):
-        return self.name  # Отображение названия жанра
+        return self.name
 
 
 class Publisher(models.Model):
-    name = models.CharField(max_length=30, verbose_name="Издатель")  # Название издателя
+    name = models.CharField(max_length=30, verbose_name="Издатель")
 
     class Meta:
         verbose_name = "Издатель"
         verbose_name_plural = "Издатели"
 
     def __str__(self):
-        return self.name  # Отображение названия издателя
+        return self.name
 
 
 class Book(models.Model):
-    title = models.CharField(max_length=30, verbose_name="Название книги")  # Название книги
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name="Автор")  # Связь с автором
-    year = models.IntegerField(verbose_name="Год издания")  # Год издания книги
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, verbose_name="Жанр")  # Связь с жанром книги
-    amount = models.IntegerField(verbose_name="Количество экземпляров")  # Количество экземпляров
-    web_amount = models.IntegerField(default=0, verbose_name="Количество экземпляров в интернет-библиотеке")
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, verbose_name="Издатель")  # Связь с издателем
-    fb2file = models.FileField(upload_to='books/', max_length=100, blank=True, verbose_name="Файл книги")
+    title = models.CharField(max_length=50, verbose_name="Название книги")
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name="Автор")
+    year = models.IntegerField(verbose_name="Год издания")
+    genre = models.ForeignKey(
+        Genre, on_delete=models.CASCADE, verbose_name="Жанр"
+    )  # Связь с жанром книги
+    amount = models.IntegerField(
+        verbose_name="Количество экземпляров"
+    )  # Количество экземпляров
+    web_amount = models.IntegerField(
+        default=0, verbose_name="Количество экземпляров в интернет-библиотеке"
+    )
+    publisher = models.ForeignKey(
+        Publisher, on_delete=models.CASCADE, verbose_name="Издатель"
+    )  # Связь с издателем
+    epub = models.FileField(
+        upload_to="books/",
+        storage=private_media_storage,
+        max_length=100,
+        blank=True,
+        verbose_name="Файл книги",
+    )
     summary = models.TextField(
         max_length=1000,
         help_text="Введите краткое описание книги",
         verbose_name="Аннотация книги",
-    )  # Аннотация книги
-    cover = models.ImageField(upload_to='covers/', verbose_name='Обложка', blank=False)
+    )
+    cover = models.ImageField(
+        upload_to="covers/", verbose_name="Обложка", blank=True, null=True
+    )
+
     class Meta:
         verbose_name = "Книга"
         verbose_name_plural = "Книги"
@@ -58,17 +80,65 @@ class Book(models.Model):
         return self.title  # Отображение названия книги
 
 
+class TocBook(models.Model):
+    book = models.OneToOneField(
+        Book,
+        on_delete=models.CASCADE,
+        verbose_name="Книга",
+    )
+
+    toc = models.JSONField(default=list)
+
+    class Meta:
+        verbose_name = "Оглавление книги"
+        verbose_name_plural = "Оглавления книг"
+
+    def __str__(self):
+        return f"{self.book.title} - Оглавление"
+
+
 class IssueOfBooks(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")  # Связь с книгой
-    reader = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts',null=True, default=None)
-    issue_date = models.DateField(verbose_name="Дата выдачи", auto_now_add=True)  # Дата выдачи книги
-    return_date = models.DateField(null=True, blank=True, verbose_name="Дата возврата")  # Дата возврата книги
-    is_web = models.BooleanField(verbose_name="Веб-версия", default=False)  # Флаг для веб-версии книги
+    book = models.ForeignKey(
+        Book, on_delete=models.CASCADE, verbose_name="Книга"
+    )  # Связь с книгой
+    reader = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        related_name="posts",
+        null=True,
+        default=None,
+    )
+    issue_date = models.DateField(
+        verbose_name="Дата выдачи", auto_now_add=True
+    )  # Дата выдачи книги
+    return_date = models.DateField(
+        null=True, blank=True, verbose_name="Дата возврата"
+    )  # Дата возврата книги
+    is_web = models.BooleanField(verbose_name="Веб-версия")  # Флаг для веб-версии книги
+
     class Meta:
         verbose_name = "Выдача книги"
         verbose_name_plural = "Выдачи книг"
 
     def __str__(self):
         return f"Выдача {self.id} - {self.book.title}. Читатель: {self.reader.first_name}"  # Отображение информации о выдаче
-    
-    
+
+
+class BookChapter(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")
+    title = models.CharField(max_length=100, verbose_name="Название главы")
+    content = models.TextField(verbose_name="Содержание главы")
+    number = models.IntegerField(verbose_name="Номер главы")
+    file = models.FileField(
+        storage=private_media_storage,
+        max_length=100,
+        blank=True,
+        verbose_name="Файл главы",
+    )
+
+    class Meta:
+        verbose_name = "Глава книги"
+        verbose_name_plural = "Главы книг"
+
+    def __str__(self):
+        return f"{self.book.title} - {self.title}"
