@@ -1,20 +1,6 @@
 from rest_framework import serializers
 from engine.models import Genre, IssueOfBooks, Book, TocBook
 
-# import fb2reader
-
-
-# class fb2_parser(fb2reader.fb2book):
-#     def get_translators(self):
-#         translators = []
-#         for translator in self.soup.find_all("translator"):
-#             first_name = translator.find("first-name").text
-#             last_name = translator.find("last-name").text
-#             if first_name != None:
-#                 translatorsFL = first_name + " " + last_name
-#                 translators.append(translatorsFL)
-#         return translators
-
 
 class IssueOfBooksSerializer(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(read_only=True)

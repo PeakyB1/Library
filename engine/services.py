@@ -1,8 +1,7 @@
-import json
 import os
 
 from ebooklib import epub
-from ebooklib import ITEM_IMAGE, ITEM_DOCUMENT
+from ebooklib import ITEM_IMAGE
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
@@ -29,7 +28,7 @@ class EpubImportService:
         self._save_cover(epub_book)
 
     def _save_cover(self, epub_book):
-        if self.book.cover:
+        if self.book.cover and not self.book.cover == "covers/default_cover.png":
             return
         cover_item = None
 
@@ -42,11 +41,7 @@ class EpubImportService:
             filename = os.path.basename(cover_item.file_name)
             content = cover_item.get_content()
 
-            self.book.cover.save(
-                filename,
-                ContentFile(content),
-                save=False
-            )
+            self.book.cover.save(filename, ContentFile(content), save=False)
         else:
             self.book.cover = None
 
@@ -72,45 +67,36 @@ class EpubImportService:
 
     def _save_chapters(self, epub_book):
         chapter_items = []
-        for item in epub_book.get_items_of_type(ITEM_DOCUMENT):
-            if isinstance(item, epub.EpubHtml):
+
+        # 1. Собираем элементы строго в порядке чтения (по Spine)
+        for spine_item in epub_book.spine:
+            item_id = spine_item[0]  # Получаем ID (например, "id14")
+            item = epub_book.get_item_with_id(item_id)
+
+            # Проверяем, что это текстовый HTML-документ
+            if item and isinstance(item, epub.EpubHtml):
                 chapter_items.append(item)
 
+        # 2. Сохраняем файлы под их оригинальными именами
         for number, item in enumerate(chapter_items, start=1):
-            title = self._get_title(item, number)
+            filename = os.path.basename(item.file_name)
+            if not filename:
+                continue
+
+            file_title, _ = os.path.splitext(filename)
+
             body = item.get_body_content()
             html_bytes = body if isinstance(body, bytes) else body.encode("utf-8")
-            filename = f"chapter-{number}.html"
+
             target_path = os.path.join(self.chapters_root, filename)
             self._save_bytes(target_path, html_bytes)
+
             BookChapter.objects.create(
                 book=self.book,
-                title=title,
+                title=file_title,
                 number=number,
                 file=target_path,
             )
-
-    def _get_title(self, item, number):
-        if hasattr(item, "get_metas"):
-            metas = item.get_metas() or []
-            for meta in metas:
-                if isinstance(meta, dict) and meta.get("name", "").lower() == "title":
-                    return meta.get("content") or meta.get("value") or f"Глава {number}"
-        if hasattr(item, "get_name"):
-            name = item.get_name()
-            if name:
-                return (
-                    os.path.splitext(os.path.basename(name))[0]
-                    .replace("_", " ")
-                    .title()
-                )
-        if hasattr(item, "file_name") and item.file_name:
-            return (
-                os.path.splitext(os.path.basename(item.file_name))[0]
-                .replace("_", " ")
-                .title()
-            )
-        return f"Глава {number}"
 
     def _normalize_toc(self, toc):
         normalized = []

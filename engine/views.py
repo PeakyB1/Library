@@ -5,7 +5,9 @@ from django.contrib import messages
 from django.db.models import Q
 from .forms import BookFilterForm
 from .models import Genre, Book, IssueOfBooks, Author
+from django.contrib.postgres.search import SearchVector
 import datetime
+from django.db import transaction
 
 
 # Create your views here.
@@ -37,65 +39,95 @@ def book(request, id):
 
 @login_required
 def returnBook(request, id):
-    issue = IssueOfBooks.objects.get(id=id)
-    book = issue.book
+    try:
+        issue = IssueOfBooks.objects.get(id=id)
+    except IssueOfBooks.DoesNotExist:
+        messages.error(request, "Запись не найдена.")
+        return redirect("account")
+
     if not issue.is_web:
         messages.error(request, "Только книги, взятые через веб, можно возвращать.")
         return redirect("account")
-    # Проверяем, что книга была выдана текущему пользователю
+    
     if issue.reader != request.user:
         messages.error(request, "Ошибка при возврате книги.")
         return redirect("account")
+        
     if issue.return_date is not None:
         messages.error(request, "Книга уже была возвращена.")
         return redirect("account")
-    issue.return_date = datetime.date.today()
-    issue.save()
-    book.web_amount += 1
-    book.save()
+
+    with transaction.atomic():
+        try:
+            issue = IssueOfBooks.objects.select_for_update().get(id=id)
+            book = Book.objects.select_for_update().get(id=issue.book_id)
+        except (IssueOfBooks.DoesNotExist, Book.DoesNotExist):
+            messages.error(request, "Ошибка при обновлении данных.")
+            return redirect("account")
+
+        issue.return_date = datetime.date.today()
+        issue.save()
+        
+        book.web_amount += 1
+        book.save()
+    
     messages.success(request, "Книга успешно возвращена.")
     return redirect("account")
 
 
 @login_required
 def takeBook(request, id):
-    is_web = request.GET.get("is_web")
-    book = Book.objects.get(id=id)
+    is_web = request.GET.get("is_web") == "True"
     user = request.user
-    unreturned_books_count = IssueOfBooks.objects.filter(
-        reader=user, return_date__isnull=True
-    ).count()
-    unreturned_books = IssueOfBooks.objects.filter(
-        reader=user, return_date__isnull=True, book=book
-    )
-    if unreturned_books:
-        messages.error(request, "Вы уже взяли эту книгу.")
-        return redirect("book_detail", id=id)
-    if unreturned_books_count >= 5:
-        messages.error(request, "Вы не можете взять больше 5 книг.")
-        return redirect("book_detail", id=id)
-    if is_web == "True" and book.web_amount <= 0:
-        messages.error(request, "Нет доступных экземпляров книги.")
-        return redirect("book_detail", id=id)
-    if is_web == "False" and book.amount <= 0:
-        messages.error(request, "Нет доступных экземпляров книги.")
-        return redirect("book_detail", id=id)
-    if is_web == "True":
-        IssueOfBooks.objects.create(
-            book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web
-        )
-        book.web_amount -= 1
+
+    with transaction.atomic():
+        try:
+            book = Book.objects.select_for_update().get(id=id)
+        except Book.DoesNotExist:
+            messages.error(request, "Книга не найдена.")
+            return redirect("account")
+
+        unreturned_books_count = IssueOfBooks.objects.filter(
+            reader=user, return_date__isnull=True
+        ).count()
+        
+        already_taken = IssueOfBooks.objects.filter(
+            reader=user, return_date__isnull=True, book=book
+        ).exists()
+
+        if already_taken:
+            messages.error(request, "Вы уже взяли эту книгу.")
+            return redirect("book_detail", id=id)
+            
+        if unreturned_books_count >= 5:
+            messages.error(request, "Вы не можете взять больше 5 книг.")
+            return redirect("book_detail", id=id)
+
+        if is_web:
+            if book.web_amount <= 0:
+                messages.error(request, "Нет доступных экземпляров книги.")
+                return redirect("book_detail", id=id)
+            book.web_amount -= 1
+        else:
+            if book.amount <= 0:
+                messages.error(request, "Нет доступных экземпляров книги.")
+                return redirect("book_detail", id=id)
+            book.amount -= 1
+
         book.save()
-        messages.success(request, "Книга успешно взята.")
-        return redirect("account")
-    if is_web == "False":
+
         IssueOfBooks.objects.create(
-            book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web
+            book=book, 
+            reader=user, 
+            issue_date=datetime.date.today(), 
+            is_web=is_web
         )
-        book.amount -= 1
-        book.save()
-        messages.success(request, "Книга успешно взята.")
-        return redirect("account")
+    
+    messages.success(request, "Книга успешно взята.")
+    return redirect("account")
+
+
+
 
 
 def contact(request):
@@ -128,28 +160,14 @@ class SearchBooksView(ListView):
             if year:
                 books = books.filter(year=year)
             if author:
-                # Разделяем строку по пробелам
-                author_parts = author.split()
-                if len(author_parts) == 1:
-                    # Если введена только одна часть (имя или фамилия)
-                    books = books.filter(
-                        Q(author__first_name__iregex=author_parts[0])
-                        | Q(author__last_name__iregex=author_parts[0])
-                    )
-                elif len(author_parts) >= 2:
-                    # Если введены обе части (имя и фамилия)
-                    first_name = author_parts[0]
-                    last_name = author_parts[1]
-                    books = books.filter(
-                        Q(
-                            author__first_name__iregex=first_name,
-                            author__last_name__iregex=last_name,
-                        )
-                        | Q(
-                            author__first_name__iregex=last_name,
-                            author__last_name__iregex=first_name,
-                        )
-                    )
+                books = books.annotate(
+                    # Создаем вектор поиска по двум полям
+                    author_search=SearchVector('author__first_name', 'author__last_name')
+                ).filter(
+                    # Postgres сам разобьет `author` на слова и проверит их наличие в векторе
+                    author_search=author
+                )
+
         return books
 
     def get_context_data(self, **kwargs):

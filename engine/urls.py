@@ -13,5 +13,3 @@ urlpatterns = [
     path('takebook/<int:id>/', views.takeBook, name='take_book'),
     path('returnbook/<int:id>/', views.returnBook, name='return_book'),
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += static(settings.PRIVATE_MEDIA_URL, document_root=settings.PRIVATE_MEDIA_ROOT)

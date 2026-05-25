@@ -1,38 +1,24 @@
+import os
+
 from rest_framework.exceptions import ValidationError
-from django.http import HttpResponse
-from django.db.models import Q
+from django.http import FileResponse, Http404, HttpResponse
+from django.db.models import Q, F
 from API.serializers import (
     BookDetailSerializer,
     GenreSerializer,
     BookListSerializer,
     IssueOfBooksSerializer,
 )
-from engine.models import Book, IssueOfBooks, BookChapter, TocBook
-from engine.models import Genre
+from engine.models import Book, IssueOfBooks, BookChapter, TocBook, Genre
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from fb2reader import fb2book
 from djoser.serializers import UserSerializer
-from django.db.models import F
 from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
-from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
-from django.db.models import Q
-
-# Фикс для fb2reader
-# class fb2_parser(fb2reader.fb2book):
-#     def get_translators(self):
-#         translators = []
-#         for translator in self.soup.find_all("translator"):
-#             first_name = translator.find("first-name").text
-#             last_name = translator.find("last-name").text
-#             if first_name != None:
-#                 translatorsFL = first_name + " " + last_name
-#                 translators.append(translatorsFL)
-#         return translators
+from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 
 
 # Create your views here.
@@ -54,13 +40,11 @@ class TakeBook(generics.CreateAPIView):
 
             book = Book.objects.get(id=book_id)
 
-            # проверка: уже взял эту книгу
             if IssueOfBooks.objects.filter(
                 reader=user, book=book, return_date__isnull=True
             ).exists():
                 raise ValidationError({"error": "Вы уже взяли эту книгу."})
 
-            # проверка лимита
             user_issues = IssueOfBooks.objects.select_for_update().filter(
                 reader=user, return_date__isnull=True
             )
@@ -95,18 +79,14 @@ class ReturnBook(generics.UpdateAPIView):
 
             Book.objects.filter(id=book.id).update(web_amount=F("web_amount") + 1)
 
-    def get_queryset(self):
-        return IssueOfBooks.objects.filter(reader=self.request.user)
-
 
 class BookDetailAPIView(generics.RetrieveAPIView):
-    # permission_classes = (IsAuthenticated,)
     serializer_class = BookDetailSerializer
     queryset = Book.objects.all()
 
 
 class BookTOCAPIView(generics.RetrieveAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     queryset = TocBook.objects.all()
 
     lookup_field = "book_id"
@@ -117,20 +97,70 @@ class BookTOCAPIView(generics.RetrieveAPIView):
         return Response(instance.toc)
 
 
-class ChapterContentAPIView(generics.RetrieveAPIView):
-    permission_classes = IsAuthenticated
-    queryset = BookChapter.objects.all()
+class ChapterContentAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
 
-    def retrieve(self):
-        instance = self.get_object()
-        if not instance.file:
-            return Response({"error": "Chapter file not found"}, status=404)
+    def get(self, request, book_id, pointer):
+        # 1. Считаем общее количество глав в книге для логики кнопок "Вперед/Назад"
+        total_chapters = BookChapter.objects.filter(book_id=book_id).count()
+
+        # 2. Определяем, как искать главу (по номеру или по имени файла)
         try:
-            with open(instance.file.path, "r", encoding="utf-8") as f:
-                content = f.read()
-            return HttpResponse(content, content_type="text/html; charset=utf-8")
+            if pointer.isdigit():
+                # Если передали число (например, "3"), ищем по порядковому номеру
+                chapter = BookChapter.objects.get(book_id=book_id, number=int(pointer))
+            else:
+                # Если передали строку (например, "ch1-5.xhtml"), ищем по концу пути файла
+                chapter = BookChapter.objects.get(
+                    book_id=book_id, title = pointer
+                )
+        except BookChapter.DoesNotExist:
+            return Response({"error": "Глава не найдена"}, status=404)
+
+        # 3. Проверяем файл на диске и читаем его контент
+        if not chapter.file or not os.path.exists(chapter.file.path):
+            return Response({"error": "Файл главы отсутствует на сервере"}, status=404)
+
+        try:
+            with open(chapter.file.path, "r", encoding="utf-8") as f:
+                html_content = f.read()
         except IOError:
-            return Response({"error": "Unable to read chapter file"}, status=500)
+            return Response({"error": "Не удалось прочитать файл главы"}, status=500)
+
+        # 4. Возвращаем стандартный DRF Response. Он сам превратит всё в JSON
+        return Response(
+            {
+                "id": chapter.id,
+                "number": chapter.number,
+                "title": chapter.title,  # Там теперь лежит чистое имя файла благодаря фиксу в сервисе
+                "content": html_content,
+                "total_chapters": total_chapters,
+            }
+        )
+
+class BookImageAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, book_id, image_name):
+        # 1. Проверяем доступ пользователя к книге через запрос к базе
+        # НАПРИМЕР: проверяем, есть ли запись, что этот юзер взял эту книгу и еще не вернул
+        # has_access = TakeBook.objects.filter(user=request.user, book_id=book_id).exists()
+        
+        # ВРЕМЕННО для теста: заглушка (пропускает любого авторизованного юзера)
+        has_access = True 
+
+        if not has_access:
+            return Response({"error": "Нет доступа к книге"}, status=403)
+
+        # 2. Строим путь к картинке
+        file_path = settings.PRIVATE_MEDIA_ROOT / 'books' / str(book_id) / 'images' / image_name
+
+        if not file_path.exists():
+            raise Http404("Изображение не найдено")
+
+        # 3. Отдаем файл
+        response = FileResponse(file_path.open('rb'))
+        return response
 
 
 class Account(generics.RetrieveAPIView):
@@ -153,7 +183,6 @@ class MyBooks(generics.ListAPIView):
 
 
 class GenreListAPIView(generics.ListAPIView):
-    # permission_classes = (IsAuthenticated,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
@@ -163,13 +192,9 @@ class BookListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         query_str = self.request.GET.get("query")
-
-        # Оптимизированная базовая выборка
         books = Book.objects.all().select_related("genre", "author", "publisher")
 
         if query_str:
-            # Создаем вектор поиска по нужным полям.
-            # 'russian' обеспечит поддержку склонений.
             vector = (
                 SearchVector("title", weight="A")
                 + SearchVector("author__first_name", weight="B")
@@ -177,10 +202,7 @@ class BookListAPIView(generics.ListAPIView):
                 + SearchVector("genre__name", weight="C")
             )
 
-            # SearchQuery также инициализируем с русским словарем
             search_query = SearchQuery(query_str, config="russian")
-
-            # Фильтруем и ранжируем (сначала самые подходящие)
             books = (
                 books.annotate(search=vector, rank=SearchRank(vector, search_query))
                 .filter(search=search_query)
@@ -189,59 +211,3 @@ class BookListAPIView(generics.ListAPIView):
 
         return books
 
-
-# region для поиска по названию и автору, фильтрация по жанру и году
-# class BookListAPIView(generics.ListAPIView):
-#     # permission_classes = (IsAuthenticated,)
-#     serializer_class = BookListSerializer
-
-#     def get_queryset(self):
-#         query = self.request.GET.get("query")
-#         genre = self.request.GET.get("genre")
-#         year = self.request.GET.get("year")
-#         author = self.request.GET.get("author")
-
-#         books = Book.objects.all().select_related("genre", "author", "publisher")
-#         if query:
-#             books = books.filter(title__iregex=query)
-#         if genre:
-#             books = books.filter(genre_id=genre)
-#         if year:
-#             books = books.filter(year=year)
-#         if author:
-#             author_parts = author.split()
-#             if len(author_parts) == 1:
-#                 books = books.filter(
-#                     Q(author__first_name__iregex=author_parts[0])
-#                     | Q(author__last_name__iregex=author_parts[0])
-#                 )
-#             elif len(author_parts) >= 2:
-#                 first_name, last_name = author_parts[:2]
-#                 books = books.filter(
-#                     Q(
-#                         author__first_name__iregex=first_name,
-#                         author__last_name__iregex=last_name,
-#                     )
-#                     | Q(
-#                         author__first_name__iregex=last_name,
-#                         author__last_name__iregex=first_name,
-#                     )
-#                 )
-#         return books
-# endregion
-
-
-class TextAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, id):
-        try:
-            book_instance = Book.objects.get(id=id)
-        except Book.DoesNotExist:
-            return Response({"error": "Книга не найдена"}, status=404)
-
-        book = fb2book(book_instance.epub.path) if book_instance.epub else None
-
-        body = (book.get_body() if book else None,)
-
-        return HttpResponse(body)
