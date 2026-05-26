@@ -127,7 +127,6 @@ class IssueOfBooks(models.Model):
 class BookChapter(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")
     title = models.CharField(max_length=100, verbose_name="Название главы")
-    content = models.TextField(verbose_name="Содержание главы")
     number = models.IntegerField(verbose_name="Номер главы")
     
     file = models.FileField(
