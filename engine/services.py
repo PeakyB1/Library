@@ -1,4 +1,5 @@
 import os
+from pathlib import PurePosixPath  # Импортируем для кроссплатформенных путей
 
 from ebooklib import epub
 from ebooklib import ITEM_IMAGE
@@ -16,9 +17,9 @@ class EpubImportService:
     def __init__(self, book):
         self.book = book
         self.storage = private_storage
-        self.book_root = os.path.join("books", str(book.id))
-        self.chapters_root = os.path.join(self.book_root, "chapters")
-        self.images_root = os.path.join(self.book_root, "images")
+        self.book_root = PurePosixPath("books") / str(book.id)
+        self.chapters_root = self.book_root / "chapters"
+        self.images_root = self.book_root / "images"
 
     def parse_and_save(self, epub_path):
         epub_book = epub.read_epub(epub_path)
@@ -62,41 +63,35 @@ class EpubImportService:
             filename = os.path.basename(item.file_name)
             if not filename:
                 continue
-            target_path = os.path.join(self.images_root, filename)
+            
+            # Склеиваем путь через pathlib и приводим к строке
+            target_path = str(self.images_root / filename)
             self._save_bytes(target_path, item.get_content())
 
     def _save_chapters(self, epub_book):
         chapter_items = []
 
-        # 1. Собираем элементы строго в порядке чтения (по Spine)
         for spine_item in epub_book.spine:
-            item_id = spine_item[0]  # Получаем ID (например, "id14")
+            item_id = spine_item[0]
             item = epub_book.get_item_with_id(item_id)
-
-            # Проверяем, что это текстовый HTML-документ
             if item and isinstance(item, epub.EpubHtml):
                 chapter_items.append(item)
 
-        # 2. Сохраняем файлы под их оригинальными именами
         for number, item in enumerate(chapter_items, start=1):
             filename = os.path.basename(item.file_name)
             if not filename:
                 continue
 
             file_title, _ = os.path.splitext(filename)
-
             body = item.get_body_content()
             html_bytes = body if isinstance(body, bytes) else body.encode("utf-8")
 
-            target_path = os.path.join(self.chapters_root, filename)
-            self._save_bytes(target_path, html_bytes)
-
-            BookChapter.objects.create(
+            chapter = BookChapter(
                 book=self.book,
                 title=file_title,
-                number=number,
-                file=target_path,
+                number=number
             )
+            chapter.file.save(filename, ContentFile(html_bytes), save=True)
 
     def _normalize_toc(self, toc):
         normalized = []

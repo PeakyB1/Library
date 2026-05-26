@@ -5,6 +5,8 @@ from django.core.files.storage import FileSystemStorage
 
 private_media_storage = FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT)
 
+def chapter_upload_path(instance, filename):
+    return f"books/{instance.book.id}/chapters/{filename}"
 
 class Author(models.Model):
     first_name = models.CharField(max_length=30, verbose_name="Имя")
@@ -127,9 +129,11 @@ class BookChapter(models.Model):
     title = models.CharField(max_length=100, verbose_name="Название главы")
     content = models.TextField(verbose_name="Содержание главы")
     number = models.IntegerField(verbose_name="Номер главы")
+    
     file = models.FileField(
         storage=private_media_storage,
-        max_length=100,
+        upload_to=chapter_upload_path,
+        max_length=255,
         blank=True,
         verbose_name="Файл главы",
     )
