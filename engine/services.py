@@ -1,5 +1,5 @@
 import os
-from pathlib import PurePosixPath  # Импортируем для кроссплатформенных путей
+from pathlib import Path
 
 from ebooklib import epub
 from ebooklib import ITEM_IMAGE
@@ -17,7 +17,7 @@ class EpubImportService:
     def __init__(self, book):
         self.book = book
         self.storage = private_storage
-        self.book_root = PurePosixPath("books") / str(book.id)
+        self.book_root = Path("books") / str(book.id)
         self.chapters_root = self.book_root / "chapters"
         self.images_root = self.book_root / "images"
 
@@ -64,7 +64,6 @@ class EpubImportService:
             if not filename:
                 continue
             
-            # Склеиваем путь через pathlib и приводим к строке
             target_path = str(self.images_root / filename)
             self._save_bytes(target_path, item.get_content())
 

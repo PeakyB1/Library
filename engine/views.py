@@ -22,7 +22,7 @@ def about(request):
 @login_required
 def account(request):
     user = request.user
-    issued_books = IssueOfBooks.objects.filter(reader=user).order_by("return_date")
+    issued_books = IssueOfBooks.objects.filter(reader=user).order_by("-return_date")
     books_count = issued_books.filter(return_date__isnull=True).count()
     context = {
         "issued_books": issued_books,
@@ -141,9 +141,6 @@ class SearchBooksView(ListView):
     paginate_by = 5 
 
     def get_queryset(self):
-        """
-        Метод для фильтрации книг на основе данных из формы.
-        """
         books = Book.objects.all()
         self.form = BookFilterForm(self.request.GET or None, genres=Genre.objects.all())
 
@@ -161,19 +158,14 @@ class SearchBooksView(ListView):
                 books = books.filter(year=year)
             if author:
                 books = books.annotate(
-                    # Создаем вектор поиска по двум полям
                     author_search=SearchVector('author__first_name', 'author__last_name')
                 ).filter(
-                    # Postgres сам разобьет `author` на слова и проверит их наличие в векторе
                     author_search=author
                 )
 
         return books
 
     def get_context_data(self, **kwargs):
-        """
-        Добавление формы и жанров в контекст.
-        """
         context = super().get_context_data(**kwargs)
         context["form"] = self.form
         return context
