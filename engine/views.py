@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .forms import BookFilterForm
 from .models import Genre, Book, IssueOfBooks, Author
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchQuery, SearchVector
 import datetime
 from django.db import transaction
 
@@ -158,9 +158,9 @@ class SearchBooksView(ListView):
                 books = books.filter(year=year)
             if author:
                 books = books.annotate(
-                    author_search=SearchVector('author__first_name', 'author__last_name')
+                author_search=SearchVector('author__first_name', 'author__last_name')
                 ).filter(
-                    author_search=author
+                    author_search=SearchQuery(author)
                 )
 
         return books
