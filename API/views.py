@@ -99,67 +99,58 @@ class BookTOCAPIView(generics.RetrieveAPIView):
 
 class ChapterContentAPIView(APIView):
     permission_classes = (IsAuthenticated,)
-
+    
     def get(self, request, book_id, pointer):
-        # 1. Считаем общее количество глав в книге для логики кнопок "Вперед/Назад"
+        has_access = IssueOfBooks.objects.filter(
+            reader=request.user, book_id=book_id, return_date__isnull=True
+        ).exists()
+        if not has_access:
+            return Response({"error": "Нет доступа к книге"}, status=403)
         total_chapters = BookChapter.objects.filter(book_id=book_id).count()
-
-        # 2. Определяем, как искать главу (по номеру или по имени файла)
         try:
             if pointer.isdigit():
-                # Если передали число (например, "3"), ищем по порядковому номеру
                 chapter = BookChapter.objects.get(book_id=book_id, number=int(pointer))
             else:
-                # Если передали строку (например, "ch1-5.xhtml"), ищем по концу пути файла
-                chapter = BookChapter.objects.get(
-                    book_id=book_id, title = pointer
-                )
+                chapter = BookChapter.objects.get(book_id=book_id, title=pointer)
         except BookChapter.DoesNotExist:
             return Response({"error": "Глава не найдена"}, status=404)
-
-        # 3. Проверяем файл на диске и читаем его контент
         if not chapter.file or not os.path.exists(chapter.file.path):
             return Response({"error": "Файл главы отсутствует на сервере"}, status=404)
-
         try:
             with open(chapter.file.path, "r", encoding="utf-8") as f:
                 html_content = f.read()
         except IOError:
             return Response({"error": "Не удалось прочитать файл главы"}, status=500)
-
-        # 4. Возвращаем стандартный DRF Response. Он сам превратит всё в JSON
         return Response(
             {
                 "id": chapter.id,
                 "number": chapter.number,
-                "title": chapter.title,  # Там теперь лежит чистое имя файла благодаря фиксу в сервисе
+                "title": chapter.title,
                 "content": html_content,
                 "total_chapters": total_chapters,
             }
         )
 
+
 class BookImageAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, book_id, image_name):
-        # 1. Проверяем доступ пользователя к книге через запрос к базе
-        # НАПРИМЕР: проверяем, есть ли запись, что этот юзер взял эту книгу и еще не вернул
-        # has_access = TakeBook.objects.filter(user=request.user, book_id=book_id).exists()
-        
-        # ВРЕМЕННО для теста: заглушка (пропускает любого авторизованного юзера)
-        has_access = True 
+        has_access = IssueOfBooks.objects.filter(
+            reader=request.user, book_id=book_id, return_date__isnull=True
+        ).exists()
 
         if not has_access:
             return Response({"error": "Нет доступа к книге"}, status=403)
 
-        # 2. Строим путь к картинке
-        file_path = settings.PRIVATE_MEDIA_ROOT / 'books' / str(book_id) / 'images' / image_name
+        file_path = (
+            settings.PRIVATE_MEDIA_ROOT / "books" / str(book_id) / "images" / image_name
+        )
 
         if not file_path.exists():
             raise Http404("Изображение не найдено")
 
-        # 3. Отдаем файл
-        response = FileResponse(file_path.open('rb'))
+        response = FileResponse(file_path.open("rb"))
         return response
 
 
@@ -210,4 +201,3 @@ class BookListAPIView(generics.ListAPIView):
             )
 
         return books
-

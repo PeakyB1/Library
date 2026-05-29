@@ -5,8 +5,10 @@ from django.core.files.storage import FileSystemStorage
 
 private_media_storage = FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT)
 
+
 def chapter_upload_path(instance, filename):
     return f"books/{instance.book.id}/chapters/{filename}"
+
 
 class Author(models.Model):
     first_name = models.CharField(max_length=30, verbose_name="Имя")
@@ -79,7 +81,7 @@ class Book(models.Model):
         verbose_name_plural = "Книги"
 
     def __str__(self):
-        return self.title  # Отображение названия книги
+        return self.title
 
 
 class TocBook(models.Model):
@@ -100,9 +102,7 @@ class TocBook(models.Model):
 
 
 class IssueOfBooks(models.Model):
-    book = models.ForeignKey(
-        Book, on_delete=models.CASCADE, verbose_name="Книга"
-    )  # Связь с книгой
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")
     reader = models.ForeignKey(
         get_user_model(),
         on_delete=models.SET_NULL,
@@ -128,7 +128,7 @@ class BookChapter(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")
     title = models.CharField(max_length=100, verbose_name="Название главы")
     number = models.IntegerField(verbose_name="Номер главы")
-    
+
     file = models.FileField(
         storage=private_media_storage,
         upload_to=chapter_upload_path,
