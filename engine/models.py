@@ -3,8 +3,8 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
-private_media_storage = FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT)
-
+def get_private_storage():
+    return FileSystemStorage(location=settings.PRIVATE_MEDIA_ROOT)
 
 def chapter_upload_path(instance, filename):
     return f"books/{instance.book.id}/chapters/{filename}"
@@ -58,7 +58,7 @@ class Book(models.Model):
     )
     epub = models.FileField(
         upload_to="books/",
-        storage=private_media_storage,
+        storage=get_private_storage,
         max_length=100,
         blank=True,
         verbose_name="Файл книги",
@@ -129,7 +129,7 @@ class BookChapter(models.Model):
     number = models.IntegerField(verbose_name="Номер главы")
 
     file = models.FileField(
-        storage=private_media_storage,
+        storage=get_private_storage,
         upload_to=chapter_upload_path,
         max_length=255,
         blank=True,
