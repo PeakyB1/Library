@@ -142,7 +142,7 @@ class SearchBooksView(ListView):
 
     def get_queryset(self):
         books = Book.objects.all()
-        self.form = BookFilterForm(self.request.GET or None, genres=Genre.objects.all())
+        self.form = BookFilterForm(self.request.GET or None)
 
         if self.form.is_valid():
             query = self.form.cleaned_data.get("query")

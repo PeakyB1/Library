@@ -25,7 +25,7 @@ class RegisterForm(UserCreationForm):
         }
     class Meta:
         model = get_user_model()
-        fields = ['username','email', 'password1', 'password2']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
         labels = {
             'first_name': '',
             'last_name': '',
@@ -36,4 +36,5 @@ class RegisterForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Фамилия'}),
             'email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'Email'}),
         }
+    
         

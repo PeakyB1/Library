@@ -105,9 +105,8 @@ class IssueOfBooks(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, verbose_name="Книга")
     reader = models.ForeignKey(
         get_user_model(),
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="posts",
-        null=True,
         default=None,
     )
     issue_date = models.DateField(verbose_name="Дата выдачи", auto_now_add=True)

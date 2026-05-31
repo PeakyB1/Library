@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from rest_framework.exceptions import ValidationError
 from django.http import FileResponse, Http404, HttpResponse
@@ -99,7 +99,7 @@ class BookTOCAPIView(generics.RetrieveAPIView):
 
 class ChapterContentAPIView(APIView):
     permission_classes = (IsAuthenticated,)
-    
+
     def get(self, request, book_id, pointer):
         has_access = IssueOfBooks.objects.filter(
             reader=request.user, book_id=book_id, return_date__isnull=True
@@ -114,7 +114,7 @@ class ChapterContentAPIView(APIView):
                 chapter = BookChapter.objects.get(book_id=book_id, title=pointer)
         except BookChapter.DoesNotExist:
             return Response({"error": "Глава не найдена"}, status=404)
-        if not chapter.file or not os.path.exists(chapter.file.path):
+        if not chapter.file or not Path(chapter.file.path).exists():
             return Response({"error": "Файл главы отсутствует на сервере"}, status=404)
         try:
             with open(chapter.file.path, "r", encoding="utf-8") as f:

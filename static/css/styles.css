@@ -52,8 +52,7 @@ main {
   background-image: url("/static/images/back1.png"),
     url("/static/images/back2.png"), url("/static/images/back3.png");
   background-position: left bottom, center bottom, right bottom;
-  backdrop-filter: blur(1px);
-  background-size: calc(37vw * (736 / 1013)) 37vw, calc(30vw * (735 / 894)) 30vw,
+  background-size: calc(35vw * (736 / 1013)) 35vw, calc(25vw * (735 / 894)) 25vw,
     calc(22vw * (900 / 600)) 22vw;
 }
 

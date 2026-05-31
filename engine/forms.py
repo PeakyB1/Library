@@ -1,5 +1,7 @@
 from django import forms
 
+from engine.models import Genre
+
 class BookFilterForm(forms.Form):
     query = forms.CharField(
         max_length=100,
@@ -9,12 +11,12 @@ class BookFilterForm(forms.Form):
             'placeholder': 'Введите название книги',
         })
     )
-    genre = forms.ChoiceField(
-        choices=[], 
-        required=False,
-        widget=forms.Select(attrs={
-            'class': 'filter-select',
-        })
+    genre = forms.ModelChoiceField(
+        queryset=Genre.objects.all(),
+        empty_label="Все жанры",
+        label="Выберите жанр",
+        widget=forms.Select(attrs={'class': 'filter-input'}),
+        required=False
     )
     year = forms.IntegerField(
         required=False,
@@ -31,8 +33,3 @@ class BookFilterForm(forms.Form):
             'placeholder': 'Автор',
         })
     )
-
-    def __init__(self, *args, **kwargs):
-        genres = kwargs.pop('genres', [])
-        super().__init__(*args, **kwargs)
-        self.fields['genre'].choices = [('', 'Все жанры')] + [(genre.id, genre.name) for genre in genres]
