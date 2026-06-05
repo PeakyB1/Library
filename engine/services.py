@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from ebooklib import epub
@@ -26,27 +25,6 @@ class EpubImportService:
         self._save_toc(epub_book)
         self._save_images(epub_book)
         self._save_chapters(epub_book)
-        self._save_cover(epub_book)
-
-    def _save_cover(self, epub_book):
-        if self.book.cover and not self.book.cover == "covers/default_cover.png":
-            return
-        cover_item = None
-
-        for item in epub_book.get_items_of_type(ITEM_IMAGE):
-            if "cover" in item.file_name.lower():
-                cover_item = item
-                break
-
-        if cover_item:
-            filename = os.path.basename(cover_item.file_name)
-            content = cover_item.get_content()
-
-            self.book.cover.save(filename, ContentFile(content), save=False)
-        else:
-            self.book.cover = None
-
-        self.book.save(update_fields=["cover"])
 
     def _save_toc(self, epub_book):
         toc_data = self._normalize_toc(epub_book.toc)
@@ -60,7 +38,8 @@ class EpubImportService:
 
     def _save_images(self, epub_book):
         for item in epub_book.get_items_of_type(ITEM_IMAGE):
-            filename = os.path.basename(item.file_name)
+            # Используем Path для безопасного извлечения имени файла вместо os.path.basename
+            filename = Path(item.file_name).name
             if not filename:
                 continue
             
@@ -77,11 +56,11 @@ class EpubImportService:
                 chapter_items.append(item)
 
         for number, item in enumerate(chapter_items, start=1):
-            filename = os.path.basename(item.file_name)
+            filename = Path(item.file_name).name
             if not filename:
                 continue
 
-            file_title, _ = os.path.splitext(filename)
+            file_title, _ = Path(filename).stem, Path(filename).suffix
             body = item.get_body_content()
             html_bytes = body if isinstance(body, bytes) else body.encode("utf-8")
 

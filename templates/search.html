@@ -31,19 +31,21 @@
 {% if page_obj.has_other_pages %}
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="{% querystring page=page_obj.previous_page_number %}" class="page-link"><</a>
+        <a href="{% querystring page=page_obj.previous_page_number %}" class="page-link">&lt;</a>
     {% endif %}
 
-    {% for p in paginator.page_range %}
+    {% for p in page_range %}
         {% if p == page_obj.number %}
             <span class="page-link active">{{ p }}</span>
+        {% elif p == page_obj.paginator.ELLIPSIS %}
+            <span class="page-link">…</span>
         {% else %}
             <a href="{% querystring page=p %}" class="page-link">{{ p }}</a>
         {% endif %}
     {% endfor %}
 
     {% if page_obj.has_next %}
-        <a href="{% querystring page=page_obj.next_page_number %}" class="page-link">></a>
+        <a href="{% querystring page=page_obj.next_page_number %}" class="page-link">&gt;</a>
     {% endif %}
 </div>
 {% endif %}

@@ -188,8 +188,7 @@ class BookListAPIView(generics.ListAPIView):
         if query_str:
             vector = (
                 SearchVector("title", weight="A")
-                + SearchVector("author__first_name", weight="B")
-                + SearchVector("author__last_name", weight="B")
+                + SearchVector("author__name", weight="B")
                 + SearchVector("genre__name", weight="C")
             )
 

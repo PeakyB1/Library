@@ -37,7 +37,7 @@
                 {% for issue in issued_books %}
                 <tr>
                     <td>{{ issue.book.title }}</td>
-                    <td>{{ issue.book.author.first_name }} {{ issue.book.author.last_name }}</td>
+                    <td>{{ issue.book.author.name }}</td>
                     <td>{{ issue.issue_date }}</td>
                     <td>{% if issue.is_web %}Веб версия{% else %}Физическая версия{% endif %}</td>
                     <td>
@@ -63,7 +63,7 @@
         {% for issue in issued_books %}
         <div class="mobile-card">
             <p><strong>Название книги:</strong> {{ issue.book.title }}</p>
-            <p><strong>Автор:</strong> {{ issue.book.author.first_name }} {{ issue.book.author.last_name }}</p>
+            <p><strong>Автор:</strong> {{ issue.book.author.name }}</p>
             <p><strong>Дата взятия:</strong> {{ issue.issue_date }}</p>
             <p><strong>Тип:</strong> {% if issue.is_web %}Веб версия{% else %}Физическая версия{% endif %}</p>
             <p><strong>Дата возврата:</strong>

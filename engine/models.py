@@ -11,15 +11,14 @@ def chapter_upload_path(instance, filename):
 
 
 class Author(models.Model):
-    first_name = models.CharField(max_length=30, verbose_name="Имя")
-    last_name = models.CharField(max_length=30, verbose_name="Фамилия")
+    name = models.CharField(max_length=30, verbose_name="Автор", null=True)
 
     class Meta:
         verbose_name = "Автор"
         verbose_name_plural = "Авторы"
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.name
 
 
 class Genre(models.Model):
@@ -119,7 +118,7 @@ class IssueOfBooks(models.Model):
 
     def __str__(self):
         return (
-            f"Выдача {self.id} - {self.book.title}. Читатель: {self.reader.first_name}"
+            f"Выдача {self.id} - {self.book.title}. Читатель: {self.reader.name}"
         )
 
 
