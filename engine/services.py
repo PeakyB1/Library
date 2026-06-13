@@ -38,11 +38,10 @@ class EpubImportService:
 
     def _save_images(self, epub_book):
         for item in epub_book.get_items_of_type(ITEM_IMAGE):
-            # Используем Path для безопасного извлечения имени файла вместо os.path.basename
             filename = Path(item.file_name).name
             if not filename:
                 continue
-            
+
             target_path = str(self.images_root / filename)
             self._save_bytes(target_path, item.get_content())
 
@@ -60,15 +59,15 @@ class EpubImportService:
             if not filename:
                 continue
 
-            file_title, _ = Path(filename).stem, Path(filename).suffix
+            file_title = Path(filename).stem
             body = item.get_body_content()
             html_bytes = body if isinstance(body, bytes) else body.encode("utf-8")
 
-            chapter = BookChapter(
-                book=self.book,
-                title=file_title,
-                number=number
+            chapter, created = BookChapter.objects.update_or_create(
+                book=self.book, title=file_title, number=number
             )
+            if not created and chapter.file:
+                chapter.file.delete(save=False)
             chapter.file.save(filename, ContentFile(html_bytes), save=True)
 
     def _normalize_toc(self, toc):

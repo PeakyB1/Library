@@ -108,8 +108,8 @@ class IssueOfBooks(models.Model):
         related_name="posts",
         default=None,
     )
-    issue_date = models.DateField(verbose_name="Дата выдачи", auto_now_add=True)
-    return_date = models.DateField(null=True, blank=True, verbose_name="Дата возврата")
+    issue_date = models.DateTimeField(verbose_name="Дата и время выдачи", auto_now_add=True)
+    return_date = models.DateTimeField(null=True, blank=True, verbose_name="Дата и время возврата")
     is_web = models.BooleanField(verbose_name="Веб-версия")
 
     class Meta:
@@ -118,7 +118,7 @@ class IssueOfBooks(models.Model):
 
     def __str__(self):
         return (
-            f"Выдача {self.id} - {self.book.title}. Читатель: {self.reader.name}"
+            f"Выдача {self.id} - {self.book.title}. Читатель: {self.reader.username}. "
         )
 
 

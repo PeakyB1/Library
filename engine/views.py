@@ -5,7 +5,7 @@ from django.contrib import messages
 from .forms import BookFilterForm
 from .models import Book, IssueOfBooks
 from django.contrib.postgres.search import SearchQuery, SearchVector
-import datetime
+from django.utils import timezone
 from django.db import transaction
 
 
@@ -21,7 +21,11 @@ def about(request):
 @login_required
 def account(request):
     user = request.user
-    issued_books = IssueOfBooks.objects.filter(reader=user).order_by("-return_date").select_related('book', 'book__author')
+    issued_books = (
+        IssueOfBooks.objects.filter(reader=user)
+        .order_by("-return_date")
+        .select_related("book", "book__author")
+    )
     books_count = issued_books.filter(return_date__isnull=True).count()
     context = {
         "issued_books": issued_books,
@@ -43,19 +47,15 @@ def returnBook(request, id):
     except IssueOfBooks.DoesNotExist:
         messages.error(request, "Запись не найдена.")
         return redirect("account")
-
     if not issue.is_web:
         messages.error(request, "Только книги, взятые через веб, можно возвращать.")
         return redirect("account")
-
     if issue.reader != request.user:
         messages.error(request, "Ошибка при возврате книги.")
         return redirect("account")
-
     if issue.return_date is not None:
         messages.error(request, "Книга уже была возвращена.")
         return redirect("account")
-
     with transaction.atomic():
         try:
             issue = IssueOfBooks.objects.select_for_update().get(id=id)
@@ -63,13 +63,10 @@ def returnBook(request, id):
         except (IssueOfBooks.DoesNotExist, Book.DoesNotExist):
             messages.error(request, "Ошибка при обновлении данных.")
             return redirect("account")
-
-        issue.return_date = datetime.date.today()
+        issue.return_date = timezone.now()
         issue.save()
-
         book.web_amount += 1
         book.save()
-
     messages.success(request, "Книга успешно возвращена.")
     return redirect("account")
 
@@ -78,30 +75,24 @@ def returnBook(request, id):
 def takeBook(request, id):
     is_web = request.GET.get("is_web") == "True"
     user = request.user
-
     with transaction.atomic():
         try:
             book = Book.objects.select_for_update().get(id=id)
         except Book.DoesNotExist:
             messages.error(request, "Книга не найдена.")
             return redirect("account")
-
         unreturned_books_count = IssueOfBooks.objects.filter(
             reader=user, return_date__isnull=True
         ).count()
-
         already_taken = IssueOfBooks.objects.filter(
             reader=user, return_date__isnull=True, book=book
         ).exists()
-
         if already_taken:
             messages.error(request, "Вы уже взяли эту книгу.")
             return redirect("book_detail", id=id)
-
         if unreturned_books_count >= 5:
             messages.error(request, "Вы не можете взять больше 5 книг.")
             return redirect("book_detail", id=id)
-
         if is_web:
             if book.web_amount <= 0:
                 messages.error(request, "Нет доступных экземпляров книги.")
@@ -112,13 +103,10 @@ def takeBook(request, id):
                 messages.error(request, "Нет доступных экземпляров книги.")
                 return redirect("book_detail", id=id)
             book.amount -= 1
-
         book.save()
-
         IssueOfBooks.objects.create(
-            book=book, reader=user, issue_date=datetime.date.today(), is_web=is_web
+            book=book, reader=user, issue_date=timezone.now(), is_web=is_web
         )
-
     messages.success(request, "Книга успешно взята.")
     return redirect("account")
 
@@ -134,15 +122,13 @@ class SearchBooksView(ListView):
     paginate_by = 8
 
     def get_queryset(self):
-        books = Book.objects.all().select_related('genre', 'author')
+        books = Book.objects.all().select_related("author")
         self.form = BookFilterForm(self.request.GET or None)
-
         if self.form.is_valid():
             query = self.form.cleaned_data.get("query")
             genre_id = self.form.cleaned_data.get("genre")
             year = self.form.cleaned_data.get("year")
             author = self.form.cleaned_data.get("author")
-
             if query:
                 books = books.filter(title__iregex=query)
             if genre_id:
@@ -153,13 +139,11 @@ class SearchBooksView(ListView):
                 books = books.annotate(
                     author_search=SearchVector("author__name")
                 ).filter(author_search=SearchQuery(author))
-
         return books
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = self.form
-
         page_obj = context.get("page_obj")
         if page_obj and page_obj.paginator:
             context["page_range"] = page_obj.paginator.get_elided_page_range(

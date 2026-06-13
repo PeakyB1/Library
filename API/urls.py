@@ -1,4 +1,4 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 from . import views
 urlpatterns = [
     path("v1/book/<int:pk>/", views.BookDetailAPIView.as_view()),

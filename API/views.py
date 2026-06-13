@@ -1,28 +1,21 @@
 from pathlib import Path
-
 from rest_framework.exceptions import ValidationError
-from django.http import FileResponse, Http404, HttpResponse
-from django.db.models import Q, F
-from API.serializers import (
-    BookDetailSerializer,
-    GenreSerializer,
-    BookListSerializer,
-    IssueOfBooksSerializer,
-)
+from django.http import FileResponse, Http404
+from django.db.models import F
+from API.serializers import *
 from engine.models import Book, IssueOfBooks, BookChapter, TocBook, Genre
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics
+from rest_framework. generics import CreateAPIView, UpdateAPIView, RetrieveAPIView, ListAPIView
 from djoser.serializers import UserSerializer
 from django.db import transaction
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 
-
 # Create your views here.
-class TakeBook(generics.CreateAPIView):
+class TakeBook(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
 
@@ -55,7 +48,7 @@ class TakeBook(generics.CreateAPIView):
             serializer.save(reader=user, book=book, is_web=True)
 
 
-class ReturnBook(generics.UpdateAPIView):
+class ReturnBook(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
 
@@ -75,27 +68,22 @@ class ReturnBook(generics.UpdateAPIView):
             if issue.return_date is not None:
                 raise ValidationError({"error": "Книга уже была возвращена."})
 
-            serializer.save(return_date=timezone.now().date())
+            serializer.save(return_date=timezone.now())
 
             Book.objects.filter(id=book.id).update(web_amount=F("web_amount") + 1)
 
 
-class BookDetailAPIView(generics.RetrieveAPIView):
+class BookDetailAPIView(RetrieveAPIView):
     serializer_class = BookDetailSerializer
     queryset = Book.objects.all()
 
 
-class BookTOCAPIView(generics.RetrieveAPIView):
+class BookTOCAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = TocBook.objects.all()
-
+    serializer_class = TocSerializer
     lookup_field = "book_id"
     lookup_url_kwarg = "book_id"
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        return Response(instance.toc)
-
 
 class ChapterContentAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -154,7 +142,7 @@ class BookImageAPIView(APIView):
         return response
 
 
-class Account(generics.RetrieveAPIView):
+class Account(RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
@@ -162,7 +150,7 @@ class Account(generics.RetrieveAPIView):
         return self.request.user
 
 
-class MyBooks(generics.ListAPIView):
+class MyBooks(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = IssueOfBooksSerializer
     pagination_class = None
@@ -173,12 +161,13 @@ class MyBooks(generics.ListAPIView):
         )
 
 
-class GenreListAPIView(generics.ListAPIView):
+class GenreListAPIView(ListAPIView):
+    pagination_class = None
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class BookListAPIView(generics.ListAPIView):
+class BookListAPIView(ListAPIView):
     serializer_class = BookListSerializer
 
     def get_queryset(self):
